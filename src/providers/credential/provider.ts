@@ -1,4 +1,4 @@
-import { ResultAsync } from 'neverthrow';
+import { ok, err, ResultAsync, safeTry } from 'neverthrow';
 import type { CredentialProvider as CredentialProviderType } from '../types';
 import { hashPassword } from '../../core/password/hash';
 import { verifyPassword } from '../../core/password/verify';
@@ -13,56 +13,71 @@ import {
   VerifyEmailError,
 } from './errors';
 
-import type { User } from './types';
+import type { User, CredentialProviderConfig } from './types';
 
 export class CredentialProvider implements CredentialProviderType {
   id = 'credential' as const;
   type = 'credential' as const;
+  config: CredentialProviderConfig;
 
-  constructor(config) {}
+  constructor(config: CredentialProviderConfig) {
+    this.config = config;
+  }
 
-  signUp(data): ResultAsync<User, SignUpError> {
-    return ResultAsync.fromPromise(
-      (async () => {
-        const { email, password, ...additionalFields } = data;
+  signUp(
+    data: {
+      email: string;
+      password: string;
+      [key: string]: unknown;
+    },
+    secret: string,
+    baseUrl: string,
+  ): ResultAsync<User, SignUpError> {
+    const config = this.config;
 
-        const hashResult = await hashPassword(password);
-        if (hashResult.isErr()) {
-          throw new SignUpError({ cause: hashResult.error });
-        }
+    return safeTry(async function* () {
+      const { email, password, ...additionalFields } = data;
 
-        const user = await this.config.onSignUp({
+      // Hash password
+      const hashedPassword = yield* hashPassword(password);
+
+      // Call user's onSignUp
+      const user = yield* ResultAsync.fromPromise(
+        config.onSignUp({
           email,
-          hashedPassword: hashResult.value,
+          hashedPassword,
           ...additionalFields,
-        });
+        }),
+        (error) => new SignUpError({ cause: error }),
+      );
 
-        const tokenResult = await generateEmailVerificationToken({
+      // Generate token
+      const token = yield* generateEmailVerificationToken({
+        email,
+        secret,
+      });
+
+      // Build email verification URL
+      const url = yield* buildEmailVerificationUrl(
+        baseUrl,
+        token,
+        config.emailVerification.path,
+      );
+
+      // Call user's sendVerificationEmail callback
+      yield* ResultAsync.fromPromise(
+        config.emailVerification.sendVerificationEmail({
           email,
-          secret: this.config.secret,
-        });
-        if (tokenResult.isErr()) {
-          throw new SignUpError({ cause: tokenResult.error });
-        }
+          url,
+        }),
+        (error) => new SignUpError({ cause: error }),
+      );
 
-        const verificationurl = await buildEmailVerificationUrl(
-          this.config.baseUrl,
-          tokenResult.value,
-          this.config.emailVerification.path,
-        );
-
-        await this.config.emailVerification.sendVerificationEmail({
-          email,
-          url: verificationurl,
-        });
-
-        return user;
-      })(),
-      (error) => {
-        if (error instanceof SignUpError) return error;
-        return new SignUpError({ cause: error });
-      },
-    );
+      return ok(user);
+    }).mapErr((error) => {
+      if (error instanceof SignUpError) return error;
+      return new SignUpError({ cause: error });
+    });
   }
 
   signIn(data: {
@@ -72,71 +87,60 @@ export class CredentialProvider implements CredentialProviderType {
     User,
     SignInError | AccountNotFoundError | InvalidCredentialsError
   > {
-    return ResultAsync.fromPromise(
-      (async () => {
-        const { email, password } = data;
+    const config = this.config;
+    return safeTry(async function* () {
+      const { email, password } = data;
 
-        // Execure user's onSignIn callback
-        const userFromDb = await this.config.onSignIn({ email });
+      // Execure user's onSignIn callback
+      const user = yield* ResultAsync.fromPromise(
+        config.onSignIn({ email }),
+        (error) => new SignInError({ cause: error }),
+      );
+      // Clarify this
+      if (!user) {
+        throw new AccountNotFoundError();
+      }
 
-        if (!userFromDb) {
-          throw new AccountNotFoundError();
-        }
+      // Verify password
+      const isPasswordValid = yield* verifyPassword(
+        password,
+        user.hashedPassword,
+      );
 
-        // Verify password
-        const verifyPasswordResult = await verifyPassword(
-          password,
-          userFromDb.hashedPassword,
-        );
+      if (!isPasswordValid) {
+        return err(new InvalidCredentialsError());
+      }
 
-        if (verifyPasswordResult.isErr()) {
-          throw new SignInError({ cause: verifyPasswordResult.error });
-        }
+      return ok(user);
+    }).mapErr((error) => {
+      if (
+        error instanceof SignInError ||
+        error instanceof AccountNotFoundError ||
+        error instanceof InvalidCredentialsError
+      ) {
+        return error;
+      }
 
-        const isPasswordValid = verifyPasswordResult.value;
-
-        if (!isPasswordValid) {
-          throw new InvalidCredentialsError();
-        }
-
-        return userFromDb;
-      })(),
-      (error) => {
-        if (
-          error instanceof SignInError ||
-          error instanceof AccountNotFoundError ||
-          error instanceof InvalidCredentialsError
-        ) {
-          return error;
-        }
-
-        return new SignInError({ cause: error });
-      },
-    );
+      return new SignInError({ cause: error });
+    });
   }
 
-  verifyEmail(token: string): ResultAsync<User, VerifyEmailError> {
-    return ResultAsync.fromPromise(
-      (async () => {
-        const emailResult = await verifyEmailVerificationToken(
-          token,
-          this.config.secret,
-        );
-
-        if (emailResult.isError()) {
-          throw new VerifyEmailError({ cause: emailResult.error });
-        }
-
-        const email = emailResult.value;
-
-        await this.config.emailVerification.onEmailVerified({ email });
-
-        return { email };
-      })(),
-      (error) => {
-        if (error instanceof VerifyEmailError) return error;
-        return new VerifyEmailError({ cause: error });
-      },
-    );
+  verifyEmail(
+    token: string,
+    secret: string,
+  ): ResultAsync<User, VerifyEmailError> {
+    const config = this.config;
+    return safeTry(async function* () {
+      const email = yield* verifyEmailVerificationToken(token, secret);
+      // Call user's onEmailVerified callback
+      yield* ResultAsync.fromPromise(
+        config.emailVerification.onEmailVerified({ email }),
+        (error) => new VerifyEmailError({ cause: error }),
+      );
+      return ok({ email });
+    }).mapErr((error) => {
+      if (error instanceof VerifyEmailError) return error;
+      return new VerifyEmailError({ cause: error });
+    });
   }
 }

@@ -42,11 +42,15 @@ export interface CredentialProvider {
   id: 'credential';
   type: 'credential';
   config: CredentialProviderConfig;
-  signUp(data: {
-    email: string;
-    password: string;
-    [key: string]: unknown;
-  }): ResultAsync<User, SignUpError>;
+  signUp(
+    data: {
+      email: string;
+      password: string;
+      [key: string]: unknown;
+    },
+    secret: string,
+    baseUrl: string,
+  ): ResultAsync<User, SignUpError>;
   signIn(data: {
     email: string;
     password: string;
@@ -54,7 +58,10 @@ export interface CredentialProvider {
     User,
     AccountNotFoundError | InvalidCredentialsError | SignInError
   >;
-  verifyEmail(token: string): ResultAsync<{ email: string }, VerifyEmailError>;
+  verifyEmail(
+    token: string,
+    secret: string,
+  ): ResultAsync<{ email: string }, VerifyEmailError>;
 }
 
 export type AnyAuthProvider = OAuthProvider | CredentialProvider;

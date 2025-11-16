@@ -40,3 +40,13 @@ export class InvalidEmailVerificationTokenError extends AuthError {
     this.name = 'InvalidEmailVerificationTokenError';
   }
 }
+
+export class BuildEmailVerificationUrlError extends AuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to build email verification URL.',
+      cause: options.cause,
+    });
+    this.name = 'BuildEmailVerificationUrlError';
+  }
+}

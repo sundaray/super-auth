@@ -1,6 +1,6 @@
 import type { AuthConfig } from '../../types';
 import type { CredentialProvider } from '../../providers/types';
-import { ResultAsync } from 'neverthrow';
+import { Result, ResultAsync } from 'neverthrow';
 import {
   SignUpError,
   SignInError,
@@ -17,30 +17,14 @@ export class CredentialService {
     provider: CredentialProvider,
     data: { email: string; password: string; [key: string]: unknown },
   ): ResultAsync<{ success: boolean }, SignUpError> {
-    return ResultAsync.fromPromise(
-      (async () => {
-        const result = await provider.signUp(data);
-
-        if (result.isErr()) {
-          throw new SignUpError({
-            cause: result.error,
-          });
-        }
-
+    const config = this.config;
+    return provider
+      .signUp(data, config.session.secret, config.baseUrl)
+      .map(() => {
         return { success: true };
-      })(),
-      (error) => {
-        if (error instanceof SignUpError) {
-          return error;
-        }
-        return new SignUpError({
-          message: 'Unexpected error during sign up.',
-          cause: error,
-        });
-      },
-    );
+      })
+      .mapErr((error) => new SignUpError({ cause: error }));
   }
-
   // --------------------------------------------
   // Sign in with credentials
   // --------------------------------------------
@@ -51,37 +35,17 @@ export class CredentialService {
     { sessionData: Record<string, unknown>; redirectTo: `/${string}` },
     SignInError
   > {
-    return ResultAsync.fromPromise(
-      (async () => {
-        const result = await provider.signIn(data);
-
-        if (result.isErr()) {
-          throw new SignInError({
-            cause: result.error,
-          });
-        }
-
-        const user = result.value;
-
-        const { hashedPassword, ...sessionData } = user as any;
-
+    return provider
+      .signIn(data)
+      .map((user) => {
+        const { hashedPassword, ...sessionData } = user;
         return {
           sessionData,
-          redirectTo: '/',
+          redirectTo: '/' as const,
         };
-      })(),
-      (error) => {
-        if (error instanceof SignInError) {
-          return error;
-        }
-        return new SignInError({
-          message: 'Unexpected error during sign in.',
-          cause: error,
-        });
-      },
-    );
+      })
+      .mapErr((error) => new SignInError({ cause: error }));
   }
-
   // --------------------------------------------
   // Verify email
   // --------------------------------------------
@@ -92,45 +56,45 @@ export class CredentialService {
     { success: boolean; redirectTo: `/${string}` },
     VerifyEmailError
   > {
+    const config = this.config;
+    const errorUrl = provider.config.emailVerification.onError;
+    const successUrl = provider.config.emailVerification.onSuccess;
+
     return ResultAsync.fromPromise(
       (async () => {
-        // Extract token from URL
-        const url = new URL(request.url);
-        const token = url.searchParams.get('token');
+        // Try to parse the token
+        const tokenResult = Result.fromThrowable(() =>
+          new URL(request.url).searchParams.get('token'),
+        )();
 
-        // Missing token - redirect to error URL
+        // Handle Parse Error
+        if (tokenResult.isErr()) {
+          return { success: false, redirectTo: errorUrl };
+        }
+
+        const token = tokenResult.value;
+
+        // Handle Missing Token
         if (!token) {
-          const errorUrl = provider.config.emailVerification.onError;
-          return {
-            success: false,
-            redirectTo: errorUrl,
-          };
+          return { success: false, redirectTo: errorUrl };
         }
 
-        // Verify token via provider
-        const result = await provider.verifyEmail(token);
+        // Try to verify the token
+        const verificationResult = await provider.verifyEmail(
+          token,
+          config.session.secret,
+        );
 
-        // Verification failed - redirect to error URL
-        if (result.isErr()) {
-          const errorUrl = provider.config.emailVerification.onError;
-          return {
-            success: false,
-            redirectTo: errorUrl,
-          };
+        // Handle Verification Error (e.g., expired, invalid)
+        if (verificationResult.isErr()) {
+          return { success: false, redirectTo: errorUrl };
         }
 
-        // Verification succeeded - redirect to success URL
-        const successUrl = provider.config.emailVerification.onSuccess;
-        return {
-          success: true,
-          redirectTo: successUrl,
-        };
+        // Handle Success
+        return { success: true, redirectTo: successUrl };
       })(),
       (error) => {
-        return new VerifyEmailError({
-          message: 'Unexpected error during email verification.',
-          cause: error,
-        });
+        return new VerifyEmailError({ cause: error });
       },
     );
   }
