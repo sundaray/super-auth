@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    /* Base Options */
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "es2022",
@@ -11,6 +12,8 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+
+    /* 🛠️ Library Specific Settings */
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "outDir": "dist",
@@ -18,6 +21,11 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "jsx": "react-jsx"
-  }
+
+    "jsx": "react-jsx",
+    "lib": ["esnext", "dom", "dom.iterable"]
+  },
+  /* 🛠️ Project Structure Control */
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
