@@ -1,53 +1,31 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { UserSessionPayload } from '../core/session/types';
+import React, { createContext, useContext, useState } from 'react';
+import type { UserSession } from '../core/session/types';
 
-import {
-  FetchUserSessionError,
-  MissingUserSessionProviderError,
-} from './errors';
+import { MissingUserSessionProviderError } from './errors';
 
 type SessionContextState =
-  | { status: 'pending'; data: null; error: null }
-  | { status: 'success'; data: UserSessionPayload | null; error: null }
-  | { status: 'error'; data: null; error: Error };
+  | { status: 'pending'; session: null; error: null }
+  | { status: 'success'; session: UserSession | null; error: null }
+  | { status: 'error'; session: null; error: Error };
 
 const UserSessionContext = createContext<SessionContextState | undefined>(
   undefined,
 );
 
-const initialState: SessionContextState = {
-  status: 'pending',
-  data: null,
-  error: null,
-};
-
 export function UserSessionProvider({
   children,
+  session,
 }: {
   children: React.ReactNode;
+  session: UserSession | null;
 }) {
-  const [state, setState] = useState<SessionContextState>(initialState);
-
-  useEffect(() => {
-    const fetchUserSession = async () => {
-      try {
-        const response = await fetch('/api/auth/session');
-        if (!response.ok) {
-          throw new FetchUserSessionError();
-        }
-
-        const userSession = await response.json();
-        setState({ status: 'success', data: userSession, error: null });
-      } catch (e) {
-        const error = e instanceof Error ? e : new Error(String(e));
-        setState({ status: 'error', data: null, error });
-      }
-    };
-
-    fetchUserSession();
-  }, []);
+  const [state, setState] = useState<SessionContextState>(() => ({
+    status: 'success',
+    session: session,
+    error: null,
+  }));
 
   return (
     <UserSessionContext.Provider value={state}>

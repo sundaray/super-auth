@@ -1,3 +1,4 @@
+import { omit } from 'zod/mini';
 import type { AuthProviderId } from '../../providers/types';
 import {
   GetSessionError,
@@ -12,6 +13,8 @@ export interface UserSessionPayload {
   provider: AuthProviderId;
   [key: string]: unknown;
 }
+
+export type UserSession = Omit<UserSessionPayload, 'maxAge' | 'provider'>;
 
 export interface SessionStorage<TContext> {
   getSession(context: TContext): ResultAsync<string | null, GetSessionError>;
