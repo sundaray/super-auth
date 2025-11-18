@@ -227,3 +227,5 @@ export function createAuthHelpers<TContext>(
     },
   };
 }
+
+export type AuthHelpers = typeof createAuthHelpers;
