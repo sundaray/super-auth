@@ -3,6 +3,7 @@ import { ResultAsync } from 'neverthrow';
 import type { UserSessionPayload } from './index';
 import { EncryptUserSessionPayloadError } from './errors';
 import { Buffer } from 'node:buffer';
+import type { UserSessionJWE } from './types';
 
 export interface EncryptUserSessionPayloadParams {
   userSessionPayload: UserSessionPayload;
@@ -12,7 +13,7 @@ export interface EncryptUserSessionPayloadParams {
 
 export function encryptUserSessionPayload(
   params: EncryptUserSessionPayloadParams,
-): ResultAsync<string, EncryptUserSessionPayloadError> {
+): ResultAsync<UserSessionJWE, EncryptUserSessionPayloadError> {
   return ResultAsync.fromPromise(
     (async () => {
       const { userSessionPayload, secret, maxAge } = params;
@@ -28,7 +29,7 @@ export function encryptUserSessionPayload(
         .setExpirationTime(`${maxAge}s`)
         .encrypt(secretKey);
 
-      return jwe;
+      return jwe as UserSessionJWE;
     })(),
     (error) => new EncryptUserSessionPayloadError({ cause: error }),
   );

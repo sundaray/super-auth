@@ -2,6 +2,7 @@ import { scryptAsync } from '@noble/hashes/scrypt.js';
 import { randomBytes } from '@noble/hashes/utils.js';
 import { ResultAsync } from 'neverthrow';
 import { HashPasswordError } from './errors';
+import type { PasswordHash } from './types';
 
 /**
  * Scrypt parameters for password hashing.
@@ -27,7 +28,7 @@ const SALT_LENGTH = 16;
 
 export function hashPassword(
   password: string,
-): ResultAsync<string, HashPasswordError> {
+): ResultAsync<PasswordHash, HashPasswordError> {
   return ResultAsync.fromPromise(
     (async () => {
       // Normalize password to handle Unicode variants consistently
@@ -46,7 +47,7 @@ export function hashPassword(
       // Format: $scrypt$n=131072,r=8,p=1$<salt>$<hash>
       const formatted = `$scrypt$n=${SCRYPT_PARAMS.N},r=${SCRYPT_PARAMS.r},p=${SCRYPT_PARAMS.p}$${saltBase64}$${hashBase64}`;
 
-      return formatted;
+      return formatted as PasswordHash;
     })(),
     (error) => new HashPasswordError({ cause: error }),
   );

@@ -1,4 +1,6 @@
-import type { AuthProviderId } from '../../types';
+import type { AuthProviderId } from '../../providers/types';
+
+export type OAuthStateJWE = string & { __brand: OAuthStateJWE };
 
 export type UserClaims = Record<string, any>;
 

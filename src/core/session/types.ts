@@ -29,3 +29,5 @@ export interface CookieOptions {
   secure?: boolean;
   sameSite?: 'lax' | 'strict' | 'none';
 }
+
+export type UserSessionJWE = string & { __brand: UserSessionJWE };

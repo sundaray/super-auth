@@ -3,6 +3,7 @@ import { ResultAsync } from 'neverthrow';
 import { EncryptOAuthStatePayloadError } from './errors';
 import type { OAuthStatePayload } from './types';
 import { Buffer } from 'node:buffer';
+import type { OAuthStateJWE } from './types';
 
 export interface EncryptOAuthStatePayloadParams {
   oauthState: OAuthStatePayload;
@@ -12,7 +13,7 @@ export interface EncryptOAuthStatePayloadParams {
 
 export function encryptOAuthStatePayload(
   params: EncryptOAuthStatePayloadParams,
-): ResultAsync<string, EncryptOAuthStatePayloadError> {
+): ResultAsync<OAuthStateJWE, EncryptOAuthStatePayloadError> {
   return ResultAsync.fromPromise(
     (async () => {
       const { oauthState, secret, maxAge } = params;
@@ -26,7 +27,7 @@ export function encryptOAuthStatePayload(
         .setExpirationTime(`${maxAge}s`)
         .encrypt(secretKey);
 
-      return jwe;
+      return jwe as OAuthStateJWE;
     })(),
     (error) => new EncryptOAuthStatePayloadError({ cause: error }),
   );

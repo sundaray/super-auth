@@ -227,5 +227,3 @@ export function createAuthHelpers<TContext>(
     },
   };
 }
-
-export type AuthHelpers = ReturnType<typeof createAuthHelpers>;
