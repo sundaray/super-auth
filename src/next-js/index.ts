@@ -3,7 +3,7 @@ import { NextJsSessionStorage } from './session-storage.js';
 import { createExtendUserSessionMiddleware } from './middleware.js';
 import type { AuthConfig } from '../types/index.js';
 import { lazyInit } from '../core/utils/lazy-init.js';
-import { redirect as nextRedirect } from 'next/navigation.js';
+import { redirect as nextRedirect } from 'next/navigation';
 import { COOKIE_NAMES, OAUTH_STATE_MAX_AGE } from '../core/constants.js';
 import type { ResultAsync } from 'neverthrow';
 import type { AuthError } from '../core/errors.js';
