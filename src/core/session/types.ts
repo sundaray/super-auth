@@ -8,10 +8,10 @@ import {
 import { ResultAsync } from 'neverthrow';
 
 export interface UserSession {
-  email?: string;
-  name?: string;
-  image?: string;
-  role?: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+  role?: string | null;
   [key: string]: unknown;
 }
 

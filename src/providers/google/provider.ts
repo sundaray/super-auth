@@ -1,6 +1,6 @@
 import { Result, ok, err, ResultAsync, safeTry } from 'neverthrow';
 import type { OAuthProvider } from '../../providers/types.js';
-import type { GoogleIdTokenPayload, GoogleProviderConfig } from './types.js';
+import type { GoogleUserClaims, GoogleProviderConfig } from './types.js';
 import type { OAuthStatePayload } from '../../core/oauth/types.js';
 
 import { decodeGoogleIdToken } from './decode-google-id-token.js';
@@ -66,7 +66,7 @@ export class GoogleProvider implements OAuthProvider {
   completeSignin(
     request: Request,
     oauthStatePayload: OAuthStatePayload,
-  ): ResultAsync<GoogleIdTokenPayload, AuthError> {
+  ): ResultAsync<GoogleUserClaims, AuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -112,7 +112,7 @@ export class GoogleProvider implements OAuthProvider {
   // Execute user's onAuthenticated callback
   // --------------------------------------------
   onAuthenticated(
-    userClaims: GoogleIdTokenPayload,
+    userClaims: GoogleUserClaims,
   ): ResultAsync<Record<string, unknown>, AuthError> {
     return ResultAsync.fromPromise(
       this.config.onAuthenticated(userClaims),

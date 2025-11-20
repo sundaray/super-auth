@@ -30,7 +30,7 @@ export class OAuthService<TContext> {
     options?: SignInOptions,
   ): ResultAsync<
     { authorizationUrl: string; oauthStateJWE: string },
-    InitiateSignInError
+    AuthError
   > {
     const config = this.config;
 
@@ -65,7 +65,6 @@ export class OAuthService<TContext> {
       if (error instanceof AuthError) {
         return error;
       }
-
       return new InitiateSignInError({
         message: `Failed to initiate OAuth sign-in.)`,
         cause: error,
@@ -85,7 +84,7 @@ export class OAuthService<TContext> {
       sessionData: Record<string, unknown>;
       redirectTo: `/${string}`;
     },
-    CompleteSignInError
+    AuthError
   > {
     const config = this.config;
     const oauthStateStorage = this.oauthStateStorage;
@@ -119,7 +118,7 @@ export class OAuthService<TContext> {
         redirectTo: oauthState.redirectTo || '/',
       });
     }).mapErr((error) => {
-      if (error instanceof CompleteSignInError) {
+      if (error instanceof AuthError) {
         return error;
       }
 

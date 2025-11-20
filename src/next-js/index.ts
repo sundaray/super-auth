@@ -8,7 +8,10 @@ import { COOKIE_NAMES, OAUTH_STATE_MAX_AGE } from '../core/constants.js';
 import type { ResultAsync } from 'neverthrow';
 import type { AuthError } from '../core/errors.js';
 import type { UserSessionPayload } from '../core/session/types.js';
-import type { AuthProviderId } from '../providers/types.js';
+import type {
+  CredentialSignInOptions,
+  CredentialSignInResult,
+} from './types.js';
 
 async function unwrap<T>(resultAsync: ResultAsync<T, AuthError>): Promise<T> {
   const result = await resultAsync;
@@ -19,12 +22,17 @@ async function unwrap<T>(resultAsync: ResultAsync<T, AuthError>): Promise<T> {
 }
 
 interface AuthInstance {
-  signIn: (
-    providerId: AuthProviderId,
-    options:
-      | { redirectTo: `/${string}` }
-      | { email: string; password: string; redirectTo: `/${string}` },
-  ) => Promise<{ authorizationUrl: string } | { redirectTo: `/${string}` }>;
+  signIn(
+    providerId: 'google',
+    options: { redirectTo: `/${string}` },
+  ): Promise<{
+    authorizationUrl: string;
+  }>;
+
+  signIn(
+    providerId: 'credential',
+    options: CredentialSignInOptions,
+  ): Promise<CredentialSignInResult>;
   signUp: (data: {
     email: string;
     password: string;
@@ -85,7 +93,7 @@ export function initAuth(config: AuthConfig) {
 
       // Wrap auth helpers for Next.js
       const authInstance: AuthInstance = {
-        signIn: async (providerId, options) => {
+        signIn: (async (providerId, options) => {
           const result = await unwrap(
             authHelpers.signIn(providerId, undefined, options),
           );
@@ -95,7 +103,7 @@ export function initAuth(config: AuthConfig) {
           }
 
           return result;
-        },
+        }) as AuthInstance['signIn'],
 
         signUp: async (data) => {
           return unwrap(authHelpers.signUp(data));

@@ -19,6 +19,10 @@
       "types": "./dist/providers/google/index.d.ts",
       "import": "./dist/providers/google/index.js"
     },
+    "./providers/credential": {
+      "types": "./dist/providers/credential/index.d.ts",
+      "import": "./dist/providers/credential/index.js"
+    },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.js"

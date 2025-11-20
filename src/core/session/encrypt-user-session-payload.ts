@@ -18,8 +18,6 @@ export function encryptUserSessionPayload(
     (async () => {
       const { userSessionPayload, secret, maxAge } = params;
 
-      console.log('User session payload: ', userSessionPayload);
-
       // Decode the base64 secret to get the raw bytes
       const secretKey = Buffer.from(secret, 'base64');
 

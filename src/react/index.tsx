@@ -21,11 +21,23 @@ export function UserSessionProvider({
   children: React.ReactNode;
   session: UserSession | null;
 }) {
-  const [state] = useState<SessionContextState>(() => ({
+  const [prevSession, setPreviousSession] = useState(session);
+
+  const [state, setState] = useState<SessionContextState>(() => ({
     status: 'success',
     session: session,
     error: null,
   }));
+
+  if (session !== prevSession) {
+    setPreviousSession(session);
+
+    setState({
+      status: 'success',
+      session: session,
+      error: null,
+    });
+  }
 
   return (
     <UserSessionContext.Provider value={state}>
