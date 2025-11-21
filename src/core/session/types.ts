@@ -1,9 +1,5 @@
 import type { AuthProviderId } from '../../providers/types.js';
-import {
-  GetSessionError,
-  SaveSessionError,
-  DeleteSessionError,
-} from './errors.js';
+import { SuperAuthError } from '../errors.js';
 
 import { ResultAsync } from 'neverthrow';
 
@@ -21,12 +17,12 @@ export interface UserSessionPayload extends UserSession {
 }
 
 export interface SessionStorage<TContext> {
-  getSession(context: TContext): ResultAsync<string | null, GetSessionError>;
+  getSession(context: TContext): ResultAsync<string | null, SuperAuthError>;
   saveSession(
     context: TContext,
     session: string,
-  ): ResultAsync<void, SaveSessionError>;
-  deleteSession(context: TContext): ResultAsync<void, DeleteSessionError>;
+  ): ResultAsync<void, SuperAuthError>;
+  deleteSession(context: TContext): ResultAsync<void, SuperAuthError>;
 }
 
 export interface CookieOptions {

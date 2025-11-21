@@ -6,14 +6,16 @@ import { lazyInit } from '../core/utils/lazy-init.js';
 import { redirect as nextRedirect } from 'next/navigation';
 import { COOKIE_NAMES, OAUTH_STATE_MAX_AGE } from '../core/constants.js';
 import type { ResultAsync } from 'neverthrow';
-import type { AuthError } from '../core/errors.js';
+import type { SuperAuthError } from '../core/errors.js';
 import type { UserSessionPayload } from '../core/session/types.js';
 import type {
   CredentialSignInOptions,
   CredentialSignInResult,
 } from './types.js';
 
-async function unwrap<T>(resultAsync: ResultAsync<T, AuthError>): Promise<T> {
+async function unwrap<T>(
+  resultAsync: ResultAsync<T, SuperAuthError>,
+): Promise<T> {
   const result = await resultAsync;
   if (result.isErr()) {
     throw result.error;
@@ -51,7 +53,7 @@ interface AuthInstance {
 
 let instance: (() => AuthInstance) | null = null;
 
-export function initAuth(config: AuthConfig) {
+export function superAuth(config: AuthConfig) {
   if (!instance) {
     const init = () => {
       // Create user session storage

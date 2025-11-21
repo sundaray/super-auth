@@ -11,7 +11,7 @@ import {
 } from './services';
 
 import { InvalidProviderTypeError } from './oauth/errors';
-import { AuthError, UnknownError } from './errors';
+import { SuperAuthError, UnknownError } from './errors';
 
 export function createAuthHelpers<TContext>(
   config: AuthConfig,
@@ -39,7 +39,7 @@ export function createAuthHelpers<TContext>(
         | { email: string; password: string; redirectTo: `/${string}` },
     ): ResultAsync<
       { authorizationUrl: string } | { redirectTo: `/${string}` },
-      AuthError
+      SuperAuthError
     > => {
       const providerResult = providerRegistry.get(providerId);
 
@@ -60,7 +60,7 @@ export function createAuthHelpers<TContext>(
               .map(() => ({ authorizationUrl }));
           })
           .mapErr((error) => {
-            if (error instanceof AuthError) {
+            if (error instanceof SuperAuthError) {
               return error;
             }
             return new UnknownError({
@@ -100,7 +100,7 @@ export function createAuthHelpers<TContext>(
 
           return ok({ redirectTo });
         }).mapErr((error) => {
-          if (error instanceof AuthError) {
+          if (error instanceof SuperAuthError) {
             return error;
           }
           return new UnknownError({
@@ -124,14 +124,14 @@ export function createAuthHelpers<TContext>(
       email: string;
       password: string;
       [key: string]: unknown;
-    }): ResultAsync<{ success: boolean }, AuthError> => {
+    }): ResultAsync<{ success: boolean }, SuperAuthError> => {
       return providerRegistry
         .getCredentialProvider()
         .asyncAndThen((provider) => {
           return credentialService.signUp(provider, data);
         })
         .mapErr((error) => {
-          if (error instanceof AuthError) {
+          if (error instanceof SuperAuthError) {
             return error;
           }
           return new UnknownError({
@@ -145,12 +145,12 @@ export function createAuthHelpers<TContext>(
     // --------------------------------------------
     signOut: (
       context: TContext,
-    ): ResultAsync<{ redirectTo: string }, AuthError> => {
+    ): ResultAsync<{ redirectTo: string }, SuperAuthError> => {
       return sessionService
         .deleteSession(context)
         .map(() => ({ redirectTo: '/' }))
         .mapErr((error) => {
-          if (error instanceof AuthError) {
+          if (error instanceof SuperAuthError) {
             return error;
           }
           return new UnknownError({
@@ -164,9 +164,9 @@ export function createAuthHelpers<TContext>(
     // --------------------------------------------
     getUserSession: (
       context: TContext,
-    ): ResultAsync<UserSessionPayload | null, AuthError> => {
+    ): ResultAsync<UserSessionPayload | null, SuperAuthError> => {
       return sessionService.getSession(context).mapErr((error) => {
-        if (error instanceof AuthError) {
+        if (error instanceof SuperAuthError) {
           return error;
         }
         return new UnknownError({
@@ -182,7 +182,7 @@ export function createAuthHelpers<TContext>(
       request: Request,
       context: TContext,
       providerId: AuthProviderId,
-    ): ResultAsync<{ redirectTo: `/${string}` }, AuthError> => {
+    ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> => {
       const providerResult = providerRegistry.get(providerId);
 
       if (providerResult.isErr()) {
@@ -217,7 +217,7 @@ export function createAuthHelpers<TContext>(
 
         return ok({ redirectTo });
       }).mapErr((error) => {
-        if (error instanceof AuthError) {
+        if (error instanceof SuperAuthError) {
           return error;
         }
         return new UnknownError({
@@ -231,14 +231,14 @@ export function createAuthHelpers<TContext>(
     // --------------------------------------------
     handleVerifyEmail: (
       request: Request,
-    ): ResultAsync<{ redirectTo: `/${string}` }, AuthError> => {
+    ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> => {
       return providerRegistry
         .getCredentialProvider()
         .asyncAndThen((provider) => {
           return credentialService.verifyEmail(request, provider);
         })
         .mapErr((error) => {
-          if (error instanceof AuthError) {
+          if (error instanceof SuperAuthError) {
             return error;
           }
           return new UnknownError({

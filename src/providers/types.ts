@@ -1,4 +1,4 @@
-import type { AuthError } from '../core/errors.js';
+import type { SuperAuthError } from '../core/errors.js';
 import { Result, ResultAsync } from 'neverthrow';
 import type { OAuthStatePayload } from '../core/oauth/types.js';
 import type { User, CredentialProviderConfig } from './credential/types.js';
@@ -16,15 +16,15 @@ export interface OAuthProvider {
     state: string;
     codeChallenge: string;
     prompt?: string;
-  }): Result<string, AuthError>;
+  }): Result<string, SuperAuthError>;
   completeSignin(
     request: Request,
     oauthStatePayload: OAuthStatePayload,
-  ): ResultAsync<Record<string, any>, AuthError>;
+  ): ResultAsync<Record<string, any>, SuperAuthError>;
 
   onAuthenticated(
     userClaims: Record<string, any>,
-  ): ResultAsync<Record<string, unknown>, AuthError>;
+  ): ResultAsync<Record<string, unknown>, SuperAuthError>;
 }
 
 /**
@@ -43,15 +43,15 @@ export interface CredentialProvider {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<User, AuthError>;
+  ): ResultAsync<User, SuperAuthError>;
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<User, AuthError>;
+  }): ResultAsync<User, SuperAuthError>;
   verifyEmail(
     token: string,
     secret: string,
-  ): ResultAsync<{ email: string }, AuthError>;
+  ): ResultAsync<{ email: string }, SuperAuthError>;
 }
 
 export type AnyAuthProvider = OAuthProvider | CredentialProvider;

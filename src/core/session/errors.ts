@@ -1,6 +1,6 @@
-import { AuthError } from '../errors.js';
+import { SuperAuthError } from '../errors.js';
 
-export class DeleteOauthStateCookieError extends AuthError {
+export class DeleteOauthStateCookieError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown }) {
     super({
       message: options.message || 'Failed to delete the OAuth state cookie.',
@@ -10,7 +10,7 @@ export class DeleteOauthStateCookieError extends AuthError {
   }
 }
 
-export class EncryptUserSessionPayloadError extends AuthError {
+export class EncryptUserSessionPayloadError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to encrypt user session payload.',
@@ -20,7 +20,7 @@ export class EncryptUserSessionPayloadError extends AuthError {
   }
 }
 
-export class DecryptUserSessionError extends AuthError {
+export class DecryptUserSessionError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to decrypt user session JWE.',
@@ -30,7 +30,7 @@ export class DecryptUserSessionError extends AuthError {
   }
 }
 
-export class RunOAuthProviderSignInCallbackError extends AuthError {
+export class RunOAuthProviderSignInCallbackError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message:
@@ -41,7 +41,7 @@ export class RunOAuthProviderSignInCallbackError extends AuthError {
   }
 }
 
-export class CreateUserSessionPayloadError extends AuthError {
+export class CreateUserSessionPayloadError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to create user session payload.',
@@ -51,7 +51,7 @@ export class CreateUserSessionPayloadError extends AuthError {
   }
 }
 
-export class OnSignInCallbackError extends AuthError {
+export class OnSignInCallbackError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'User onSignIn callback failed to execute.',
@@ -61,7 +61,7 @@ export class OnSignInCallbackError extends AuthError {
   }
 }
 
-export class SetUserSessionCookieError extends AuthError {
+export class SetUserSessionCookieError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to set the user session cookie.',
@@ -71,12 +71,32 @@ export class SetUserSessionCookieError extends AuthError {
   }
 }
 
-export class GetUserSessionError extends AuthError {
+export class GetUserSessionError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to get user session.',
       cause: options.cause,
     });
     this.name = 'GetUserSessionError';
+  }
+}
+
+export class SaveUserSessionError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to save user session.',
+      cause: options.cause,
+    });
+    this.name = 'SaveUserSessionError';
+  }
+}
+
+export class DeleteUserSessionError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to delete user session.',
+      cause: options.cause,
+    });
+    this.name = 'DeleteUserSessionError';
   }
 }

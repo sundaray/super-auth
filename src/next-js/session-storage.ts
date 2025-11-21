@@ -3,9 +3,9 @@ import type { CookieOptions } from '../core/session/types.js';
 import type { SessionStorage } from '../core/session/types.js';
 import { ResultAsync } from 'neverthrow';
 import {
-  DeleteSessionError,
-  GetSessionError,
-  SaveSessionError,
+  DeleteUserSessionError,
+  GetUserSessionError,
+  SaveUserSessionError,
 } from '../core/session/errors.js';
 
 export class NextJsSessionStorage implements SessionStorage<undefined> {
@@ -17,21 +17,23 @@ export class NextJsSessionStorage implements SessionStorage<undefined> {
     this.cookieOptions = cookieOptions;
   }
 
-  getSession(context: undefined): ResultAsync<string | null, GetSessionError> {
+  getSession(
+    context: undefined,
+  ): ResultAsync<string | null, GetUserSessionError> {
     return ResultAsync.fromPromise(
       (async () => {
         const cookieStore = await cookies();
         const cookie = cookieStore.get(this.cookieName);
         return cookie?.value ?? null;
       })(),
-      (error) => new GetSessionError({ cause: error }),
+      (error) => new GetUserSessionError({ cause: error }),
     );
   }
 
   saveSession(
     context: undefined,
     session: string,
-  ): ResultAsync<void, SaveSessionError> {
+  ): ResultAsync<void, SaveUserSessionError> {
     return ResultAsync.fromPromise(
       (async () => {
         const cookieStore = await cookies();
@@ -40,17 +42,17 @@ export class NextJsSessionStorage implements SessionStorage<undefined> {
           ...this.cookieOptions,
         });
       })(),
-      (error) => new SaveSessionError({ cause: error }),
+      (error) => new SaveUserSessionError({ cause: error }),
     );
   }
 
-  deleteSession(context: undefined): ResultAsync<void, DeleteSessionError> {
+  deleteSession(context: undefined): ResultAsync<void, DeleteUserSessionError> {
     return ResultAsync.fromPromise(
       (async () => {
         const cookieStore = await cookies();
         cookieStore.delete(this.cookieName);
       })(),
-      (error) => new DeleteSessionError({ cause: error }),
+      (error) => new DeleteUserSessionError({ cause: error }),
     );
   }
 }

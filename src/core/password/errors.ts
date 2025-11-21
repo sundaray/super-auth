@@ -1,6 +1,6 @@
-import { AuthError } from '../errors';
+import { SuperAuthError } from '../errors';
 
-export class HashPasswordError extends AuthError {
+export class HashPasswordError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to hash password',
@@ -10,7 +10,7 @@ export class HashPasswordError extends AuthError {
   }
 }
 
-export class VerifyPasswordError extends AuthError {
+export class VerifyPasswordError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to verify password',
@@ -20,7 +20,7 @@ export class VerifyPasswordError extends AuthError {
   }
 }
 
-export class InvalidPasswordHashFormatError extends AuthError {
+export class InvalidPasswordHashFormatError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Invalid password hash format.',

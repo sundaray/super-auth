@@ -1,6 +1,6 @@
-import { AuthError } from '../errors.js';
+import { SuperAuthError } from '../errors.js';
 
-export class GenerateEmailVerificationTokenError extends AuthError {
+export class GenerateEmailVerificationTokenError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message:
@@ -11,7 +11,7 @@ export class GenerateEmailVerificationTokenError extends AuthError {
   }
 }
 
-export class VerifyEmailVerificationTokenError extends AuthError {
+export class VerifyEmailVerificationTokenError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to verify email verification token.',
@@ -21,7 +21,7 @@ export class VerifyEmailVerificationTokenError extends AuthError {
   }
 }
 
-export class ExpiredEmailVerificationTokenError extends AuthError {
+export class ExpiredEmailVerificationTokenError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Email verification token has expired.',
@@ -31,7 +31,7 @@ export class ExpiredEmailVerificationTokenError extends AuthError {
   }
 }
 
-export class InvalidEmailVerificationTokenError extends AuthError {
+export class InvalidEmailVerificationTokenError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Invalid email verification token.',
@@ -41,7 +41,7 @@ export class InvalidEmailVerificationTokenError extends AuthError {
   }
 }
 
-export class BuildEmailVerificationUrlError extends AuthError {
+export class BuildEmailVerificationUrlError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to build email verification URL.',

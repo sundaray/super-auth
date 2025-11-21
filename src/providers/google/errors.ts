@@ -1,6 +1,6 @@
-import { AuthError } from '../../core/errors.js';
+import { SuperAuthError } from '../../core/errors.js';
 
-export class EncodeClientCredentialsError extends AuthError {
+export class EncodeClientCredentialsError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to encode client credentials',
@@ -10,7 +10,7 @@ export class EncodeClientCredentialsError extends AuthError {
   }
 }
 
-export class TokenFetchError extends AuthError {
+export class TokenFetchError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to fetch tokens from provider',
@@ -20,7 +20,7 @@ export class TokenFetchError extends AuthError {
   }
 }
 
-export class TokenResponseError extends AuthError {
+export class TokenResponseError extends SuperAuthError {
   public status?: number;
   public statusText?: string;
 
@@ -42,7 +42,7 @@ export class TokenResponseError extends AuthError {
   }
 }
 
-export class TokenParseError extends AuthError {
+export class TokenParseError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to parse token response',
@@ -52,7 +52,7 @@ export class TokenParseError extends AuthError {
   }
 }
 
-export class DecodeGoogleIdTokenError extends AuthError {
+export class DecodeGoogleIdTokenError extends SuperAuthError {
   constructor(options: { message?: string; cause?: unknown } = {}) {
     super({
       message: options.message || 'Failed to decode Google ID token.',
