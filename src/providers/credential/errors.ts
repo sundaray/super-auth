@@ -20,3 +20,13 @@ export class InvalidCredentialsError extends SuperAuthError {
     this.name = 'InvalidCredentialsError';
   }
 }
+
+export class AccountAlreadyExistsError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'An account with this email already exists.',
+      cause: options.cause,
+    });
+    this.name = 'AccountAlreadyExistsError';
+  }
+}

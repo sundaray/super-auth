@@ -43,7 +43,7 @@ export interface CredentialProvider {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<User, SuperAuthError>;
+  ): ResultAsync<{ email: string }, SuperAuthError>;
   signIn(data: {
     email: string;
     password: string;

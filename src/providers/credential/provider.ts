@@ -7,11 +7,16 @@ import {
   verifyEmailVerificationToken,
   buildEmailVerificationUrl,
 } from '../../core/verification';
-import { AccountNotFoundError, InvalidCredentialsError } from './errors';
+import {
+  AccountAlreadyExistsError,
+  AccountNotFoundError,
+  InvalidCredentialsError,
+} from './errors';
 
 import { SuperAuthError, UnknownError, CallbackError } from '../../core/errors';
 
-import type { User, CredentialProviderConfig } from './types';
+import type { UserSession } from '../../core/session/types';
+import type { CredentialProviderConfig } from './types';
 
 export class CredentialProvider implements CredentialProviderType {
   id = 'credential' as const;
@@ -22,6 +27,9 @@ export class CredentialProvider implements CredentialProviderType {
     this.config = config;
   }
 
+  // --------------------------------------------
+  // Sign Up
+  // --------------------------------------------
   signUp(
     data: {
       email: string;
@@ -30,45 +38,46 @@ export class CredentialProvider implements CredentialProviderType {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<User, SuperAuthError> {
+  ): ResultAsync<{ email: string }, SuperAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
       const { email, password, ...additionalFields } = data;
 
+      // Execute user's checkUserExists callback
+      const userExists = yield* ResultAsync.fromPromise(
+        config.onSignUp.checkUserExists(email),
+        (error) =>
+          new CallbackError({ callback: 'checkUserExists', cause: error }),
+      );
+
+      if (userExists) {
+        return err(new AccountAlreadyExistsError());
+      }
+
       // Hash password
       const hashedPassword = yield* hashPassword(password);
 
-      // Call user's onSignUp
-      const user = yield* ResultAsync.fromPromise(
-        config.onSignUp({
+      // Generate token
+      const token = yield* generateEmailVerificationToken({
+        secret,
+        payload: {
           email,
           hashedPassword,
           ...additionalFields,
-        }),
-        (error) =>
-          new CallbackError({
-            callback: 'onSignUp',
-            cause: error,
-          }),
-      );
-
-      // Generate token
-      const token = yield* generateEmailVerificationToken({
-        email,
-        secret,
+        },
       });
 
       // Build email verification URL
       const url = yield* buildEmailVerificationUrl(
         baseUrl,
         token,
-        config.emailVerification.path,
+        '/api/auth/verify-email',
       );
 
       // Call user's sendVerificationEmail callback
       yield* ResultAsync.fromPromise(
-        config.emailVerification.sendVerificationEmail({
+        config.onSignUp.sendVerificationEmail({
           email,
           url,
         }),
@@ -79,7 +88,7 @@ export class CredentialProvider implements CredentialProviderType {
           }),
       );
 
-      return ok(user);
+      return ok({ email });
     }).mapErr((error) => {
       if (error instanceof SuperAuthError) {
         return error;
@@ -90,11 +99,13 @@ export class CredentialProvider implements CredentialProviderType {
       });
     });
   }
-
+  // --------------------------------------------
+  // Sign In
+  // --------------------------------------------
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<User, SuperAuthError> {
+  }): ResultAsync<UserSession, SuperAuthError> {
     const config = this.config;
     return safeTry(async function* () {
       const { email, password } = data;
@@ -111,7 +122,7 @@ export class CredentialProvider implements CredentialProviderType {
 
       // User not found
       if (!user) {
-        throw new AccountNotFoundError();
+        return err(new AccountNotFoundError());
       }
 
       // Verify password
@@ -139,20 +150,28 @@ export class CredentialProvider implements CredentialProviderType {
   verifyEmail(
     token: string,
     secret: string,
-  ): ResultAsync<{ email: string }, SuperAuthError> {
+  ): ResultAsync<UserSession, SuperAuthError> {
     const config = this.config;
     return safeTry(async function* () {
-      const email = yield* verifyEmailVerificationToken(token, secret);
-      // Call user's onEmailVerified callback
-      yield* ResultAsync.fromPromise(
-        config.emailVerification.onEmailVerified({ email }),
+      //// Decrypt token to get email + hashedPassword + additionalFields
+      const tokenPayload = yield* verifyEmailVerificationToken(token, secret);
+
+      const { email, hashedPassword, ...additionalFields } = tokenPayload;
+
+      // Call user's createUser callback
+      const user = yield* ResultAsync.fromPromise(
+        config.onSignUp.createUser({
+          email,
+          hashedPassword,
+          ...additionalFields,
+        }),
         (error) =>
           new CallbackError({
-            callback: 'onEmailVerified',
+            callback: 'createUser',
             cause: error,
           }),
       );
-      return ok({ email });
+      return ok(user);
     }).mapErr((error) => {
       if (error instanceof SuperAuthError) {
         return error;

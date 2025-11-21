@@ -6,14 +6,14 @@ import { EMAIL_VERIFICATION_TOKEN_EXPIRES_IN } from '../constants.js';
 import { GenerateEmailVerificationTokenError } from './errors.js';
 
 export function generateEmailVerificationToken(params: {
-  email: string;
+  payload: Record<string, unknown>;
   secret: string;
   expiresIn?: number;
 }): ResultAsync<EmailVerificationToken, GenerateEmailVerificationTokenError> {
   return ResultAsync.fromPromise(
     (async () => {
       const {
-        email,
+        payload,
         secret,
         expiresIn = EMAIL_VERIFICATION_TOKEN_EXPIRES_IN,
       } = params;
@@ -22,7 +22,7 @@ export function generateEmailVerificationToken(params: {
       const secretKey = Buffer.from(secret, 'base64');
 
       // Create a signed JWT
-      const token = await new SignJWT({ email })
+      const token = await new SignJWT(payload)
         .setProtectedHeader({
           alg: 'HS256',
         })
