@@ -8,6 +8,10 @@ export interface User {
   [key: string]: unknown;
 }
 
+export type CheckUserExists =
+  | { exists: false }
+  | { exists: true; passwordHash: string };
+
 export interface CredentialProviderConfig {
   onSignUp: {
     checkUserExists(email: string): Promise<boolean>;
@@ -21,8 +25,27 @@ export interface CredentialProviderConfig {
       [key: string]: unknown;
     }): Promise<UserSession>;
   };
-
   onSignIn(data: {
     email: string;
   }): Promise<(User & { hashedPassword: string }) | null>;
+
+  onPasswordReset: {
+    checkUserExists(params: { email: string }): Promise<CheckUserExists>;
+    sendPasswordResetEmail(params: {
+      email: string;
+      url: string;
+    }): Promise<void>;
+    updatePassword(params: {
+      email: string;
+      hashedPassword: string;
+    }): Promise<void>;
+    sendPasswordChangeEmail(params: { email: string }): Promise<void>;
+    verifyPasswordResetTokenPath: string;
+    redirects: {
+      checkEmail: `/${string}`;
+      resetForm: `/${string}`;
+      resetPasswordSuccess: `/${string}`;
+      resetPasswordError: `/${string}`;
+    };
+  };
 }

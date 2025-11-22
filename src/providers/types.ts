@@ -52,6 +52,22 @@ export interface CredentialProvider {
     token: string,
     secret: string,
   ): ResultAsync<{ email: string }, SuperAuthError>;
+  forgotPassword(data: {
+    email: string;
+    secret: string;
+    baseUrl: string;
+  }): ResultAsync<void, SuperAuthError>;
+  verifyPasswordResetToken(): ResultAsync<
+    {
+      email: string;
+      passwordHash: string;
+    },
+    SuperAuthError
+  >;
+  resetPassword(data: {
+    email: string;
+    newPassword: string;
+  }): ResultAsync<void, SuperAuthError>;
 }
 
 export type AnyAuthProvider = OAuthProvider | CredentialProvider;

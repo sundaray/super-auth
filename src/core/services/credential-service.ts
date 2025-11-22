@@ -69,8 +69,6 @@ export class CredentialService {
     SuperAuthError
   > {
     const config = this.config;
-    const errorUrl = provider.config.emailVerification.onError;
-    const successUrl = provider.config.emailVerification.onSuccess;
 
     return ResultAsync.fromPromise(
       (async () => {
@@ -115,5 +113,72 @@ export class CredentialService {
         });
       },
     );
+  }
+
+  // --------------------------------------------
+  // Forgot Password
+  // --------------------------------------------
+  forgotPassword(
+    provider: CredentialProvider,
+    data: { email: string },
+  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
+    const config = this.config;
+
+    return provider
+      .forgotPassword(data, config.session.secret, config.baseUrl)
+      .mapErr((error) => {
+        if (error instanceof SuperAuthError) {
+          return error;
+        }
+        return new UnknownError({
+          context: 'credential-service.forgotPassword',
+          cause: error,
+        });
+      });
+  }
+
+  // --------------------------------------------
+  // Verify Password Reset Token
+  // --------------------------------------------
+  verifyPasswordResetToken(
+    request: Request,
+    provider: CredentialProvider,
+  ): ResultAsync<
+    { email: string; passwordHash: string; redirectTo: `/${string}` },
+    SuperAuthError
+  > {
+    const config = this.config;
+    return provider
+      .verifyPasswordResetToken(request, config.session.secret)
+      .mapErr((error) => {
+        if (error instanceof SuperAuthError) {
+          return error;
+        }
+        return new UnknownError({
+          context: 'credential-service.verifyPasswordResetToken',
+          cause: error,
+        });
+      });
+  }
+
+  // --------------------------------------------
+  // Reset Password
+  // --------------------------------------------
+  resetPassword(
+    provider: CredentialProvider,
+    token: string,
+    data: { newPassword: string },
+  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
+    return provider
+      .resetPassword(token, data, this.config.session.secret)
+      .mapErr((error) => {
+        if (error instanceof SuperAuthError) {
+          return error;
+        }
+        return new UnknownError({
+          context: 'credential-service.resetPassword',
+          cause: error,
+        });
+      });
   }
 }

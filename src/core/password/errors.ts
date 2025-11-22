@@ -29,3 +29,52 @@ export class InvalidPasswordHashFormatError extends SuperAuthError {
     this.name = 'InvalidPasswordHashFormatError';
   }
 }
+export class GeneratePasswordResetTokenError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to generate password reset token.',
+      cause: options.cause,
+    });
+    this.name = 'GeneratePasswordResetTokenError';
+  }
+}
+
+export class BuildPasswordResetUrlError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to build password reset URL.',
+      cause: options.cause,
+    });
+    this.name = 'BuildPasswordResetUrlError';
+  }
+}
+
+export class InvalidPasswordResetTokenError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Invalid password reset token.',
+      cause: options.cause,
+    });
+    this.name = 'InvalidPasswordResetTokenError';
+  }
+}
+
+export class PasswordResetTokenAlreadyUsedError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Password reset token has already been used.',
+      cause: options.cause,
+    });
+    this.name = 'PasswordResetTokenAlreadyUsedError';
+  }
+}
+
+export class VerifyPasswordResetTokenError extends SuperAuthError {
+  constructor(options: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: options.message || 'Failed to verify password reset token.',
+      cause: options.cause,
+    });
+    this.name = 'VerifyPasswordresetTokenError';
+  }
+}
