@@ -55,6 +55,7 @@ export class OAuthService<TContext> {
       const authorizationUrl = yield* provider.getAuthorizationUrl({
         state,
         codeChallenge,
+        baseUrl: config.baseUrl,
       });
 
       return ok({
@@ -104,7 +105,11 @@ export class OAuthService<TContext> {
       });
 
       // Complete authentication with provider
-      const userClaims = yield* provider.completeSignin(request, oauthState);
+      const userClaims = yield* provider.completeSignin(
+        request,
+        oauthState,
+        config.baseUrl,
+      );
 
       // Call provider's onAuthenticated callback
       const sessionData = yield* provider.onAuthenticated(userClaims);

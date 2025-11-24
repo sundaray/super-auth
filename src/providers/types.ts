@@ -16,10 +16,12 @@ export interface OAuthProvider {
     state: string;
     codeChallenge: string;
     prompt?: string;
+    baseUrl: string;
   }): Result<string, SuperAuthError>;
   completeSignin(
     request: Request,
     oauthStatePayload: OAuthStatePayload,
+    baseUrl: string,
   ): ResultAsync<Record<string, any>, SuperAuthError>;
 
   onAuthenticated(

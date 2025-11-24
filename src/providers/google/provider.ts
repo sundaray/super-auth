@@ -43,15 +43,19 @@ export class GoogleProvider implements OAuthProvider {
     state: string;
     codeChallenge: string;
     prompt?: string;
+    baseUrl: string;
   }): Result<string, SuperAuthError> {
-    const { state, codeChallenge, prompt } = params;
+    const { state, codeChallenge, prompt, baseUrl } = params;
     return Result.fromThrowable(
       () => {
         const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
         url.searchParams.set('response_type', 'code');
         url.searchParams.set('client_id', this.config.clientId);
-        url.searchParams.set('redirect_uri', `${}`);
+        url.searchParams.set(
+          'redirect_uri',
+          `${baseUrl}${AUTH_ROUTES.CALLBACK}/google`,
+        );
         url.searchParams.set('state', state);
         url.searchParams.set('code_challenge', codeChallenge);
         url.searchParams.set('code_challenge_method', 'S256');
@@ -70,6 +74,7 @@ export class GoogleProvider implements OAuthProvider {
   completeSignin(
     request: Request,
     oauthStatePayload: OAuthStatePayload,
+    baseUrl: string,
   ): ResultAsync<GoogleUserClaims, SuperAuthError> {
     const config = this.config;
 
@@ -96,7 +101,7 @@ export class GoogleProvider implements OAuthProvider {
         code,
         clientId: config.clientId,
         clientSecret: config.clientSecret,
-        redirectUri: config.redirectUri,
+        redirectUri: `${baseUrl}${AUTH_ROUTES.CALLBACK}/google`,
         codeVerifier: oauthStatePayload.codeVerifier,
       });
 

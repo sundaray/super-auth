@@ -30,7 +30,6 @@ export interface GoogleTokenResponse {
 export interface GoogleProviderConfig {
   clientId: string;
   clientSecret: string;
-  redirectUri: string;
   /**
    * A callback that runs after the user successfully authenticates with Google.
    *
