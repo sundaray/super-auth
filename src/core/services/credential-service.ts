@@ -12,12 +12,12 @@ export class CredentialService {
   signUp(
     provider: CredentialProvider,
     data: { email: string; password: string; [key: string]: unknown },
-  ): ResultAsync<{ success: boolean }, SuperAuthError> {
+  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
     const config = this.config;
     return provider
       .signUp(data, config.session.secret, config.baseUrl)
-      .map(() => {
-        return { success: true };
+      .map((result) => {
+        return { redirectTo: result.redirectTo };
       })
       .mapErr((error) => {
         if (error instanceof SuperAuthError) {

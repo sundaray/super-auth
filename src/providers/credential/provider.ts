@@ -49,7 +49,7 @@ export class CredentialProvider implements CredentialProviderType {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ email: string }, SuperAuthError> {
+  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, SuperAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -99,7 +99,7 @@ export class CredentialProvider implements CredentialProviderType {
           }),
       );
 
-      return ok({ email });
+      return ok({ email, redirectTo: config.onSignUp.redirects.checkEmail });
     }).mapErr((error) => {
       if (error instanceof SuperAuthError) {
         return error;
@@ -321,11 +321,14 @@ export class CredentialProvider implements CredentialProviderType {
         return err(new PasswordResetTokenAlreadyUsedError());
       }
 
+      // Token is valid - append token to redirect URL
+      const redirectUrl = `${config.onPasswordReset.redirects.resetForm}?token=${token}`;
+
       // Token is valid
       return ok({
         email,
         passwordHash: dbPasswordHash,
-        redirectTo: config.onPasswordReset.redirects.resetForm,
+        redirectTo: redirectUrl as `/${string}`,
       });
     }).mapErr((error) => {
       if (error instanceof SuperAuthError) {

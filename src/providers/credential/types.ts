@@ -1,5 +1,3 @@
-import type { UserSession } from '../../core/session/types.js';
-
 export interface User {
   email?: string | null;
   name?: string | null;
@@ -8,13 +6,9 @@ export interface User {
   [key: string]: unknown;
 }
 
-export type CheckUserExists =
-  | { exists: false }
-  | { exists: true; passwordHash: string };
-
 export interface CredentialProviderConfig {
   onSignUp: {
-    checkUserExists(email: string): Promise<boolean>;
+    checkUserExists(email: string): Promise<{ exists: boolean }>;
     sendVerificationEmail(params: {
       email: string;
       url: string;
@@ -25,6 +19,7 @@ export interface CredentialProviderConfig {
       [key: string]: unknown;
     }): Promise<void>;
     redirects: {
+      checkEmail: `/${string}`;
       emailVerificationSuccess: `/${string}`;
       emailVerificationError: `/${string}`;
     };
@@ -34,7 +29,9 @@ export interface CredentialProviderConfig {
   }): Promise<(User & { hashedPassword: string }) | null>;
 
   onPasswordReset: {
-    checkUserExists(params: { email: string }): Promise<CheckUserExists>;
+    checkUserExists(params: {
+      email: string;
+    }): Promise<{ exists: false } | { exists: true; passwordHash: string }>;
     sendPasswordResetEmail(params: {
       email: string;
       url: string;

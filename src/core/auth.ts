@@ -125,7 +125,7 @@ export function createAuthHelpers<TContext>(
       email: string;
       password: string;
       [key: string]: unknown;
-    }): ResultAsync<{ success: boolean }, SuperAuthError> => {
+    }): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> => {
       return providerRegistry
         .getCredentialProvider()
         .asyncAndThen((provider) => {

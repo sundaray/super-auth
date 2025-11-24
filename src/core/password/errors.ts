@@ -75,7 +75,7 @@ export class VerifyPasswordResetTokenError extends SuperAuthError {
       message: options.message || 'Failed to verify password reset token.',
       cause: options.cause,
     });
-    this.name = 'VerifyPasswordresetTokenError';
+    this.name = 'VerifyPasswordResetTokenError';
   }
 }
 

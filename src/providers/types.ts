@@ -45,7 +45,7 @@ export interface CredentialProvider {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ email: string }, SuperAuthError>;
+  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, SuperAuthError>;
   signIn(data: {
     email: string;
     password: string;

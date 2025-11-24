@@ -39,7 +39,7 @@ interface AuthInstance {
     email: string;
     password: string;
     [key: string]: unknown;
-  }) => Promise<{ success: boolean }>;
+  }) => Promise<void>;
   signOut: () => Promise<void>;
   getUserSession: () => Promise<UserSessionPayload | null>;
   forgotPassword: (email: string) => Promise<void>;
@@ -99,15 +99,22 @@ export function superAuth(config: AuthConfig) {
             authHelpers.signIn(providerId, undefined, options),
           );
 
+          // Google sign-in
           if ('authorizationUrl' in result) {
             nextRedirect(result.authorizationUrl as string);
+          }
+
+          // Credential sign-in
+          if ('redirectTo' in result) {
+            nextRedirect(result.redirectTo);
           }
 
           return result;
         }) as AuthInstance['signIn'],
 
         signUp: async (data) => {
-          return unwrap(authHelpers.signUp(data));
+          const { redirectTo } = await unwrap(authHelpers.signUp(data));
+          nextRedirect(redirectTo);
         },
 
         signOut: async () => {
