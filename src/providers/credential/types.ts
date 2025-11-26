@@ -40,7 +40,7 @@ export interface CredentialProviderConfig {
       email: string;
       hashedPassword: string;
     }): Promise<void>;
-    sendPasswordChangeEmail(params: { email: string }): Promise<void>;
+    sendPasswordUpdatedEmail(params: { email: string }): Promise<void>;
     redirects: {
       checkEmail: `/${string}`;
       resetForm: `/${string}`;

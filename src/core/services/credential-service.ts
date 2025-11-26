@@ -1,6 +1,6 @@
 import type { AuthConfig } from '../../types';
 import type { CredentialProvider } from '../../providers/types';
-import { Result, ResultAsync } from 'neverthrow';
+import { ResultAsync } from 'neverthrow';
 import { SuperAuthError, UnknownError } from '../errors';
 
 export class CredentialService {

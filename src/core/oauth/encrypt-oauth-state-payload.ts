@@ -5,15 +5,11 @@ import type { OAuthStatePayload } from './types.js';
 import { Buffer } from 'node:buffer';
 import type { OAuthStateJWE } from './types.js';
 
-export interface EncryptOAuthStatePayloadParams {
+export function encryptOAuthStatePayload(params: {
   oauthState: OAuthStatePayload;
   secret: string;
   maxAge: number;
-}
-
-export function encryptOAuthStatePayload(
-  params: EncryptOAuthStatePayloadParams,
-): ResultAsync<OAuthStateJWE, EncryptOAuthStatePayloadError> {
+}): ResultAsync<OAuthStateJWE, EncryptOAuthStatePayloadError> {
   return ResultAsync.fromPromise(
     (async () => {
       const { oauthState, secret, maxAge } = params;

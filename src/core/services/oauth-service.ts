@@ -1,20 +1,17 @@
-import type { AuthConfig } from '../../types/index.js';
-import type { SessionStorage } from '../session/types.js';
-import type { OAuthProvider } from '../../providers/types.js';
+import type { AuthConfig } from '../../types';
+import type { SessionStorage } from '../session/types';
+import type { OAuthProvider } from '../../providers/types';
 import {
   generateState,
   generateCodeVerifier,
   generateCodeChallenge,
-} from '../pkce/index.js';
-import {
-  encryptOAuthStatePayload,
-  decryptOAuthStateJWE,
-} from '../oauth/index.js';
-import { OAUTH_STATE_MAX_AGE } from '../constants.js';
-import type { SignInOptions } from '../../types/index.js';
+} from '../pkce';
+import { encryptOAuthStatePayload, decryptOAuthStateJWE } from '../oauth';
+import { OAUTH_STATE_MAX_AGE } from '../constants';
+import type { SignInOptions } from '../../types';
 import { ResultAsync, safeTry, ok, err } from 'neverthrow';
-import { SuperAuthError, UnknownError } from '../errors.js';
-import { OAuthStateCookieNotFoundError } from '../oauth/errors.js';
+import { SuperAuthError, UnknownError } from '../errors';
+import { OAuthStateCookieNotFoundError } from '../oauth/errors';
 
 export class OAuthService<TContext> {
   constructor(

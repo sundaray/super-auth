@@ -1,7 +1,6 @@
 import { jwtVerify } from 'jose';
 import { ResultAsync } from 'neverthrow';
 import { Buffer } from 'node:buffer';
-import type { PasswordResetToken } from './types.js';
 import { VerifyPasswordResetTokenError } from './errors.js';
 
 interface PasswordResetTokenPayload {

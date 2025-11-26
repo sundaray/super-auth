@@ -424,7 +424,7 @@ export class CredentialProvider implements CredentialProviderType {
 
       // Call user's sendPasswordChangeEmail callback
       yield* ResultAsync.fromPromise(
-        config.onPasswordReset.sendPasswordChangeEmail({ email }),
+        config.onPasswordReset.sendPasswordUpdatedEmail({ email }),
         (error) =>
           new CallbackError({
             callback: 'sendPasswordChangeEmail',
