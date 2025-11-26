@@ -26,7 +26,7 @@ export class DecryptUserSessionError extends SuperAuthError {
       message: options.message || 'Failed to decrypt user session JWE.',
       cause: options.cause,
     });
-    this.name = 'DecryptUserSessionJweError';
+    this.name = 'DecryptUserSessionError';
   }
 }
 

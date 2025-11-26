@@ -1,9 +1,9 @@
 import { EncryptJWT } from 'jose';
 import { ResultAsync } from 'neverthrow';
-import type { UserSessionPayload } from './index.js';
-import { EncryptUserSessionPayloadError } from './errors.js';
+import type { UserSessionPayload } from './';
+import { EncryptUserSessionPayloadError } from './errors';
 import { Buffer } from 'node:buffer';
-import type { UserSessionJWE } from './types.js';
+import type { UserSessionJWE } from './types';
 
 export interface EncryptUserSessionPayloadParams {
   userSessionPayload: UserSessionPayload;

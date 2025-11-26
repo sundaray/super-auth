@@ -1,7 +1,7 @@
 import { jwtDecrypt } from 'jose';
 import { ResultAsync } from 'neverthrow';
-import { DecryptUserSessionError } from './errors.js';
-import type { UserSessionPayload } from './index.js';
+import { DecryptUserSessionError } from './errors';
+import type { UserSessionPayload } from './';
 import { Buffer } from 'node:buffer';
 
 export interface DecryptUserSessionParams {
