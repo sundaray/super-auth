@@ -58,6 +58,7 @@
     "@types/node": "^24.9.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.0.14",
     "next": "^16.0.3",
     "prettier": "^3.6.2",
     "react": "^19.2.0",

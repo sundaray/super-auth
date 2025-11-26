@@ -1,12 +1,15 @@
 import { SignJWT } from 'jose';
 import { Buffer } from 'node:buffer';
 import { ResultAsync } from 'neverthrow';
-import type { EmailVerificationToken } from './types.js';
+import type {
+  EmailVerificationToken,
+  EmailVerificationPayload,
+} from './types.js';
 import { EMAIL_VERIFICATION_TOKEN_EXPIRES_IN } from '../constants.js';
 import { GenerateEmailVerificationTokenError } from './errors.js';
 
 export function generateEmailVerificationToken(params: {
-  payload: Record<string, unknown>;
+  payload: EmailVerificationPayload;
   secret: string;
   expiresIn?: number;
 }): ResultAsync<EmailVerificationToken, GenerateEmailVerificationTokenError> {

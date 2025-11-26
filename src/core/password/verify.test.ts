@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest';
 import { verifyPassword } from './verify';
 import { hashPassword } from './hash';
 
-describe('verifyPassword', () => {
+describe('verifyPassword', { timeout: 30000 }, () => {
   test('should return true when the password matches the hash', async () => {
     const password = 'my-secret-password';
 

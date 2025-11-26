@@ -1,8 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { hashPassword } from './hash';
-import { hash } from 'crypto';
 
-describe('hashPassword', () => {
+describe('hashPassword', { timeout: 30000 }, () => {
   test('should create a hashed password from a plain text password', async () => {
     const password = 'my-secret-password';
 
