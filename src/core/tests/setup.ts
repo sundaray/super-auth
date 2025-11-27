@@ -3,6 +3,7 @@ import type { OAuthProvider, CredentialProvider } from '../../providers/types';
 import type { CredentialProviderConfig } from '../../providers/credential/types';
 import type { AuthConfig } from '../../types';
 import type { SessionStorage } from '../session/types';
+import type { UserSessionPayload } from '../session/types';
 
 // ============================================
 // MOCK CONFIG
@@ -125,6 +126,19 @@ export function createMockSessionService(): MockSessionService {
     deleteSession: vi.fn(),
   };
 }
+
+// ============================================
+// MOCK DATA
+// ============================================
+export const mockUserSessionPayload: UserSessionPayload = {
+  user: {
+    id: 'user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+  },
+  provider: 'google',
+  maxAge: 3600,
+};
 
 // ============================================
 // TEST CONTEXT
