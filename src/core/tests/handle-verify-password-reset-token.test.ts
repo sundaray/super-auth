@@ -38,7 +38,7 @@ vi.mock('../services', () => ({
   }),
 }));
 
-describe('handleResetPassword', () => {
+describe('handleVerifyPasswordResetToken', () => {
   let authHelpers: ReturnType<typeof createAuthHelpers<TestContext>>;
 
   const mockUserSessionStorage = createMockSessionStorage<undefined>();
@@ -46,8 +46,9 @@ describe('handleResetPassword', () => {
   const mockOAuthProvider = createMockOAuthProvider();
   const mockCredentialProvider = createMockCredentialProvider();
 
-  const validToken = 'valid-reset-token-jwt';
-  const newPassword = 'newSecurePassword123!';
+  const mockRequest = new Request(
+    'https://myapp.com/api/auth/verify-password-reset-token?token=reset-token-123',
+  );
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -59,79 +60,79 @@ describe('handleResetPassword', () => {
     );
   });
 
-  test('should return redirectTo on successful password reset', async () => {
-    const expectedRedirect = '/sign-in';
+  test('should return email, passwordHash, and redirectTo on successful verification', async () => {
+    const expectedResult = {
+      email: 'test@example.com',
+      passwordHash: 'hashed-password-value',
+      redirectTo: '/reset-password',
+    };
 
     mockProviderRegistry.getCredentialProvider.mockReturnValue(
       ok(mockCredentialProvider),
     );
-    mockCredentialService.resetPassword.mockReturnValue(
-      okAsync({ redirectTo: expectedRedirect }),
+    mockCredentialService.verifyPasswordResetToken.mockReturnValue(
+      okAsync(expectedResult),
     );
 
-    const result = await authHelpers.handleResetPassword(
-      validToken,
-      newPassword,
-    );
+    const result =
+      await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
     expect(result.isOk()).toBe(true);
-    expect(result._unsafeUnwrap()).toEqual({ redirectTo: expectedRedirect });
+    expect(result._unsafeUnwrap()).toEqual(expectedResult);
   });
 
-  test('should call credentialService.resetPassword with provider, token, and newPassword', async () => {
+  test('should call credentialService.verifyPasswordResetToken with request and provider', async () => {
     mockProviderRegistry.getCredentialProvider.mockReturnValue(
-      okAsync(mockCredentialProvider),
+      ok(mockCredentialProvider),
     );
-    mockCredentialService.resetPassword.mockReturnValue(
-      ok({ redirectTo: '/sign-in' }),
+    mockCredentialService.verifyPasswordResetToken.mockReturnValue(
+      okAsync({
+        email: 'test@example.com',
+        passwordHash: 'hash',
+        redirectTo: '/reset-password' as const,
+      }),
     );
 
-    await authHelpers.handleResetPassword(validToken, newPassword);
+    await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
-    expect(mockCredentialService.resetPassword).toHaveBeenCalledWith(
+    expect(mockCredentialService.verifyPasswordResetToken).toHaveBeenCalledWith(
+      mockRequest,
       mockCredentialProvider,
-      validToken,
-      { newPassword },
     );
   });
-
   test('should pass through SuperAuthError from getCredentialProvider', async () => {
-    const getCredentialProviderError = new SuperAuthError({
+    const providerError = new SuperAuthError({
       message: 'No credential provider configured',
     });
 
     mockProviderRegistry.getCredentialProvider.mockReturnValue(
-      err(getCredentialProviderError),
+      err(providerError),
     );
 
-    const result = await authHelpers.handleResetPassword(
-      validToken,
-      newPassword,
-    );
+    const result =
+      await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
     expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(getCredentialProviderError);
+    expect(result._unsafeUnwrapErr()).toBe(providerError);
   });
 
-  test('should pass through SuperAuthError from credentialService.resetPassword', async () => {
-    const resetPasswordError = new SuperAuthError({
-      message: 'Failed to reset password',
+  test('should pass through SuperAuthError from credentialService.verifyPasswordResetToken', async () => {
+    const tokenError = new SuperAuthError({
+      message: 'Password reset token is invalid',
     });
 
     mockProviderRegistry.getCredentialProvider.mockReturnValue(
       ok(mockCredentialProvider),
     );
-    mockCredentialService.resetPassword.mockReturnValue(
-      errAsync(resetPasswordError),
+    mockCredentialService.verifyPasswordResetToken.mockReturnValue(
+      errAsync(tokenError),
     );
 
-    const result = await authHelpers.handleResetPassword(
-      validToken,
-      newPassword,
-    );
+    const result =
+      await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
     expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(resetPasswordError);
+    expect(result._unsafeUnwrapErr()).toBe(tokenError);
   });
 
   test('should wrap unknown error from getCredentialProvider in UnknownError', async () => {
@@ -141,10 +142,8 @@ describe('handleResetPassword', () => {
       err(unknownError),
     );
 
-    const result = await authHelpers.handleResetPassword(
-      validToken,
-      newPassword,
-    );
+    const result =
+      await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
     expect(result.isErr()).toBe(true);
 
@@ -153,18 +152,18 @@ describe('handleResetPassword', () => {
     expect(error.cause).toBe(unknownError);
   });
 
-  test('should wrap unknown error from credentialService.resetPassword in UnknownError', async () => {
+  test('should wrap unknown error from credentialService.verifyPasswordResetToken in UnknownError', async () => {
     const unknownError = new Error('Unknown error');
 
     mockProviderRegistry.getCredentialProvider.mockReturnValue(
       ok(mockCredentialProvider),
     );
-    mockCredentialService.resetPassword.mockReturnValue(errAsync(unknownError));
-
-    const result = await authHelpers.handleResetPassword(
-      validToken,
-      newPassword,
+    mockCredentialService.verifyPasswordResetToken.mockReturnValue(
+      errAsync(unknownError),
     );
+
+    const result =
+      await authHelpers.handleVerifyPasswordResetToken(mockRequest);
 
     expect(result.isErr()).toBe(true);
 

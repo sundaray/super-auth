@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { okAsync } from 'neverthrow';
+import { okAsync, errAsync } from 'neverthrow';
 import { createAuthHelpers } from '../auth';
 import {
   mockConfig,
@@ -13,6 +13,7 @@ import {
   createMockSessionService,
   createMockSessionStorage,
 } from './setup';
+import { SuperAuthError, UnknownError } from '../errors';
 
 // ============================================
 // MOCK SERVICE MODULES
@@ -62,5 +63,32 @@ describe('signout', () => {
 
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap()).toEqual({ redirectTo: '/' });
+  });
+
+  test('should pass through SuperAuthError from sessionService.deleteSession', async () => {
+    const deleteError = new SuperAuthError({
+      message: 'Failed to delete session',
+    });
+
+    mockSessionService.deleteSession.mockReturnValue(errAsync(deleteError));
+
+    const result = await authHelpers.signOut(testContext);
+
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBe(deleteError);
+  });
+
+  test('should wrap unknown error from sessionService.deleteSession in UnknownError', async () => {
+    const unknownError = new Error('Cookie deletion failed');
+
+    mockSessionService.deleteSession.mockReturnValue(errAsync(unknownError));
+
+    const result = await authHelpers.signOut(testContext);
+
+    expect(result.isErr()).toBe(true);
+
+    const error = result._unsafeUnwrapErr();
+    expect(error).toBeInstanceOf(UnknownError);
+    expect(error.cause).toBe(unknownError);
   });
 });
