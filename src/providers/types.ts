@@ -5,10 +5,6 @@ import type { User, CredentialProviderConfig } from './credential/types.js';
 
 export type AuthProviderId = 'google' | 'credential';
 
-/**
- * Contract for OAuth providers (Google, GitHub, etc.)
- * Not user-facing - implemented by provider classes
- */
 export interface OAuthProvider {
   id: AuthProviderId;
   type: 'oauth';
@@ -29,10 +25,6 @@ export interface OAuthProvider {
   ): ResultAsync<Record<string, unknown>, SuperAuthError>;
 }
 
-/**
- * Contract for credential (email/password) provider
- * Not user-facing - implemented by CredentialProvider class
- */
 export interface CredentialProvider {
   id: 'credential';
   type: 'credential';
