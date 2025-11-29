@@ -1,4 +1,4 @@
-import type { SuperAuthError } from '../core/errors';
+import type { LucidAuthError } from '../core/errors';
 import { Result, ResultAsync } from 'neverthrow';
 import type { OAuthStatePayload } from '../core/oauth/types';
 import type { UserSession } from '../core/session/types';
@@ -14,16 +14,16 @@ export interface OAuthProvider {
     codeChallenge: string;
     prompt?: string;
     baseUrl: string;
-  }): Result<string, SuperAuthError>;
+  }): Result<string, LucidAuthError>;
   completeSignin(
     request: Request,
     oauthStatePayload: OAuthStatePayload,
     baseUrl: string,
-  ): ResultAsync<Record<string, any>, SuperAuthError>;
+  ): ResultAsync<Record<string, any>, LucidAuthError>;
 
   onAuthenticated(
     userClaims: Record<string, any>,
-  ): ResultAsync<Record<string, unknown>, SuperAuthError>;
+  ): ResultAsync<Record<string, unknown>, LucidAuthError>;
 }
 
 export interface CredentialProvider {
@@ -38,34 +38,34 @@ export interface CredentialProvider {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, SuperAuthError>;
+  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, LucidAuthError>;
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<UserSession, SuperAuthError>;
+  }): ResultAsync<UserSession, LucidAuthError>;
   verifyEmail(
     request: Request,
     secret: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError>;
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError>;
   forgotPassword(
     data: {
       email: string;
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError>;
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError>;
   verifyPasswordResetToken(
     request: Request,
     secret: string,
   ): ResultAsync<
     { email: string; passwordHash: string; redirectTo: `/${string}` },
-    SuperAuthError
+    LucidAuthError
   >;
   resetPassword(
     token: string,
     data: { newPassword: string },
     secret: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError>;
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError>;
 }
 
 export type AnyAuthProvider = OAuthProvider | CredentialProvider;

@@ -1,5 +1,5 @@
 import type { AuthProviderId } from '../../providers/types';
-import { SuperAuthError } from '../errors';
+import { LucidAuthError } from '../errors';
 
 import { ResultAsync } from 'neverthrow';
 
@@ -17,12 +17,12 @@ export interface UserSessionPayload extends UserSession {
 }
 
 export interface SessionStorage<TContext> {
-  getSession(context: TContext): ResultAsync<string | null, SuperAuthError>;
+  getSession(context: TContext): ResultAsync<string | null, LucidAuthError>;
   saveSession(
     context: TContext,
     session: string,
-  ): ResultAsync<void, SuperAuthError>;
-  deleteSession(context: TContext): ResultAsync<void, SuperAuthError>;
+  ): ResultAsync<void, LucidAuthError>;
+  deleteSession(context: TContext): ResultAsync<void, LucidAuthError>;
 }
 
 export interface CookieOptions {

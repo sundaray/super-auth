@@ -75,7 +75,7 @@ describe('CredentialProvider.resetPassword', () => {
       okAsync(newHashedPassword as PasswordHash),
     );
     mockConfig.onPasswordReset.updatePassword.mockResolvedValue(undefined);
-    mockConfig.onPasswordReset.sendPasswordUpdatedEmail.mockResolvedValue(
+    mockConfig.onPasswordReset.sendPasswordUpdateEmail.mockResolvedValue(
       undefined,
     );
 
@@ -152,7 +152,7 @@ describe('CredentialProvider.resetPassword', () => {
     mockConfig.onPasswordReset.updatePassword.mockResolvedValue(undefined);
 
     const callbackError = new Error('Email service failed');
-    mockConfig.onPasswordReset.sendPasswordUpdatedEmail.mockRejectedValue(
+    mockConfig.onPasswordReset.sendPasswordUpdateEmail.mockRejectedValue(
       callbackError,
     );
 

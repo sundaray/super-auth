@@ -14,7 +14,7 @@ import {
 } from './setup';
 import { AccountAlreadyExistsError } from '../errors';
 import {
-  SuperAuthError,
+  LucidAuthError,
   CallbackError,
   UnknownError,
 } from '../../../core/errors';

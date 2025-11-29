@@ -14,7 +14,7 @@ import {
   InvalidCredentialsError,
 } from './errors';
 
-import { SuperAuthError, UnknownError, CallbackError } from '../../core/errors';
+import { LucidAuthError, UnknownError, CallbackError } from '../../core/errors';
 
 import type { UserSession } from '../../core/session/types';
 import type { CredentialProviderConfig } from './types';
@@ -50,7 +50,7 @@ export class CredentialProvider implements CredentialProviderType {
     },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, SuperAuthError> {
+  ): ResultAsync<{ email: string; redirectTo: `/${string}` }, LucidAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -102,7 +102,7 @@ export class CredentialProvider implements CredentialProviderType {
 
       return ok({ email, redirectTo: config.onSignUp.redirects.checkEmail });
     }).mapErr((error) => {
-      if (error instanceof SuperAuthError) {
+      if (error instanceof LucidAuthError) {
         return error;
       }
       return new UnknownError({
@@ -117,7 +117,7 @@ export class CredentialProvider implements CredentialProviderType {
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<UserSession, SuperAuthError> {
+  }): ResultAsync<UserSession, LucidAuthError> {
     const config = this.config;
     return safeTry(async function* () {
       const { email, password } = data;
@@ -149,7 +149,7 @@ export class CredentialProvider implements CredentialProviderType {
 
       return ok(user);
     }).mapErr((error) => {
-      if (error instanceof SuperAuthError) {
+      if (error instanceof LucidAuthError) {
         return error;
       }
       return new UnknownError({
@@ -164,7 +164,7 @@ export class CredentialProvider implements CredentialProviderType {
   verifyEmail(
     request: Request,
     secret: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError> {
     const config = this.config;
     return safeTry(async function* () {
       // Parse token from request URL
@@ -201,7 +201,7 @@ export class CredentialProvider implements CredentialProviderType {
       });
     })
       .orElse((error) => {
-        if (error instanceof SuperAuthError) {
+        if (error instanceof LucidAuthError) {
           const errorPath = config.onSignUp.redirects.emailVerificationError;
           const redirectUrl = appendErrorToPath(
             errorPath,
@@ -228,7 +228,7 @@ export class CredentialProvider implements CredentialProviderType {
     data: { email: string },
     secret: string,
     baseUrl: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -274,7 +274,7 @@ export class CredentialProvider implements CredentialProviderType {
 
       return ok({ redirectTo: config.onPasswordReset.redirects.checkEmail });
     }).mapErr((error) => {
-      if (error instanceof SuperAuthError) {
+      if (error instanceof LucidAuthError) {
         return error;
       }
       return new UnknownError({
@@ -292,7 +292,7 @@ export class CredentialProvider implements CredentialProviderType {
     secret: string,
   ): ResultAsync<
     { email: string; passwordHash: string; redirectTo: `/${string}` },
-    SuperAuthError
+    LucidAuthError
   > {
     const config = this.config;
 
@@ -345,7 +345,7 @@ export class CredentialProvider implements CredentialProviderType {
     })
       .orElse((error) => {
         // Only recover known domain errors
-        if (error instanceof SuperAuthError) {
+        if (error instanceof LucidAuthError) {
           const errorPath = config.onPasswordReset.redirects.resetPasswordError;
           const redirectUrl = appendErrorToPath(
             errorPath,
@@ -378,7 +378,7 @@ export class CredentialProvider implements CredentialProviderType {
     token: string,
     data: { newPassword: string },
     secret: string,
-  ): ResultAsync<{ redirectTo: `/${string}` }, SuperAuthError> {
+  ): ResultAsync<{ redirectTo: `/${string}` }, LucidAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -436,7 +436,7 @@ export class CredentialProvider implements CredentialProviderType {
         redirectTo: config.onPasswordReset.redirects.resetPasswordSuccess,
       });
     }).mapErr((error) => {
-      if (error instanceof SuperAuthError) {
+      if (error instanceof LucidAuthError) {
         return error;
       }
       return new UnknownError({

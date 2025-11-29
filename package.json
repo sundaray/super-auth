@@ -1,5 +1,5 @@
 {
-  "name": "super-auth",
+  "name": "lucidauth",
   "version": "0.0.1",
   "description": "A simple authentication library for Next.js",
   "exports": {
