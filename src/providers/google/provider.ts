@@ -38,7 +38,6 @@ export class GoogleProvider implements OAuthProvider {
   // --------------------------------------------
   // Get Authorization URL
   // --------------------------------------------
-
   getAuthorizationUrl(params: {
     state: string;
     codeChallenge: string;

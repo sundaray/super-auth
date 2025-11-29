@@ -88,7 +88,6 @@ describe('GoogleProvider', () => {
     // --------------------------------------------
     // Complete sign-in
     // --------------------------------------------
-
     describe('completeSignIn', () => {
       const mockOAuthState: OAuthStatePayload = {
         state: 'test-state',

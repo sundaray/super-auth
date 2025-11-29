@@ -1,5 +1,5 @@
-import type { AuthProviderId } from '../../providers/types.js';
-import { SuperAuthError } from '../errors.js';
+import type { AuthProviderId } from '../../providers/types';
+import { SuperAuthError } from '../errors';
 
 import { ResultAsync } from 'neverthrow';
 

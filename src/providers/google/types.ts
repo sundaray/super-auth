@@ -31,14 +31,15 @@ export interface GoogleProviderConfig {
   clientId: string;
   clientSecret: string;
   /**
-   * A callback that runs after the user successfully authenticates with Google.
+   * A callback that SuperAuth executes after a user successfully authenticates with Google.
    *
-   * It receives the `userClaims` (like email, name, picture) returned by Google.
-   * You can use these claims to find or create a user in your database.
+   * SuperAuth provides the user claims (profile information returned by Google) as the
+   * callback parameter. Use these claims to find or create a user in your database,
+   * then return the data you want stored in the user session.
    *
-   * **Important**: The object you return here becomes the `UserSession`.
    *
    * @param userClaims - The profile information returned by Google.
+   * @returns The object you return becomes the user session.
    */
   onAuthenticated(userClaims: GoogleUserClaims): Promise<UserSession>;
 }

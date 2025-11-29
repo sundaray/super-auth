@@ -12,7 +12,6 @@ import {
 
 import { InvalidProviderTypeError } from './oauth/errors';
 import { SuperAuthError, UnknownError } from './errors';
-import type { SrvRecord } from 'node:dns';
 
 export function createAuthHelpers<TContext>(
   config: AuthConfig,

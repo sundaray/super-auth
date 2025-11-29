@@ -8,7 +8,18 @@ export interface User {
 
 export interface CredentialProviderConfig {
   onSignUp: {
-    checkUserExists(email: string): Promise<{ exists: boolean }>;
+    /**
+     * A callback that SuperAuth executes to check if a user with a credential account already exists.
+     *
+     * SuperAuth provides the email address as the callback parameter. Query your database
+     * to check if a user with this email already has a credential-based account.
+     *
+     * @param params - An object containing `email`
+     *
+     * @returns An object with `exists: true` if the user has a credential account,
+     * or `exists: false` otherwise.
+     */
+    checkUserExists(params: { email: string }): Promise<{ exists: boolean }>;
     sendVerificationEmail(params: {
       email: string;
       url: string;

@@ -59,7 +59,7 @@ export function createExtendUserSessionMiddleware(config: AuthConfig) {
         path: '/',
       });
     }
-
+ 
     return response;
   };
 }
