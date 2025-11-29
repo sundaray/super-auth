@@ -49,14 +49,14 @@ export interface CredentialProviderConfig {
       /**
        * The URL SuperAuth should redirect the user to after they submit the sign-up form.
        *
-       * * This page should instruct the user to check their inbox for an email verification link.
+       * This page should instruct the user to check their inbox for an email verification link.
        */
       checkEmail: `/${string}`;
       /**
        * The URL SuperAuth should redirect the user to after their email is successfully
        * verified.
        *
-       * * This page should inform the user that their email has been successfully verified
+       * This page should inform the user that their email has been successfully verified
        * and prompt them to sign in.
        */
       emailVerificationSuccess: `/${string}`;
@@ -146,13 +146,13 @@ export interface CredentialProviderConfig {
       /**
        * The URL SuperAuth should redirect the user to after they submit a "Forgot Password" request.
        *
-       * * This page should instruct the user to check their inbox for a password reset link.
+       * This page should instruct the user to check their inbox for a password reset link.
        */
       checkEmail: `/${string}`;
       /**
        * The URL of your password reset form.
        *
-       * * SuperAuth redirects the user here after validating the token from the password reset link.
+       * SuperAuth redirects the user here after validating the token from the password reset link.
        */
       resetForm: `/${string}`;
       /**
