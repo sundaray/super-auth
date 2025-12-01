@@ -5,7 +5,7 @@ import type { AuthConfig } from '../types/index.js';
 import { redirect as nextRedirect } from 'next/navigation';
 import { COOKIE_NAMES, OAUTH_STATE_MAX_AGE } from '../core/constants.js';
 import type { ResultAsync } from 'neverthrow';
-import type { SuperAuthError } from '../core/errors.js';
+import type { LucidAuthError } from '../core/errors.js';
 import type { UserSessionPayload } from '../core/session/types.js';
 import type {
   CredentialSignInOptions,
@@ -13,7 +13,7 @@ import type {
 } from './types.js';
 
 async function unwrap<T>(
-  resultAsync: ResultAsync<T, SuperAuthError>,
+  resultAsync: ResultAsync<T, LucidAuthError>,
 ): Promise<T> {
   const result = await resultAsync;
   if (result.isErr()) {
