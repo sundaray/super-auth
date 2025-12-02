@@ -6,7 +6,7 @@ import { Buffer } from 'node:buffer';
 import type { UserSessionJWE } from './types';
 
 export interface EncryptUserSessionPayloadParams {
-  userSessionPayload: UserSessionPayload;
+  payload: UserSessionPayload;
   secret: string;
   maxAge: number;
 }
@@ -16,12 +16,12 @@ export function encryptUserSessionPayload(
 ): ResultAsync<UserSessionJWE, EncryptUserSessionPayloadError> {
   return ResultAsync.fromPromise(
     (async () => {
-      const { userSessionPayload, secret, maxAge } = params;
+      const { payload, secret, maxAge } = params;
 
       // Decode the base64 secret to get the raw bytes
       const secretKey = Buffer.from(secret, 'base64');
 
-      const jwe = await new EncryptJWT(userSessionPayload)
+      const jwe = await new EncryptJWT({ ...payload })
         .setProtectedHeader({ alg: 'dir', enc: 'A128CBC-HS256' })
         .setIssuedAt()
         .setExpirationTime(`${maxAge}s`)

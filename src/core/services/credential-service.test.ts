@@ -4,7 +4,7 @@ import { CredentialService } from './';
 import type { AuthConfig } from '../../types';
 import type { CredentialProvider } from '../../providers/credential/provider';
 import type { CredentialProviderConfig } from '../../providers/credential/types';
-import { SuperAuthError, UnknownError } from '../errors';
+import { LucidAuthError, UnknownError } from '../errors';
 
 describe('CredentialService', () => {
   // ============================================
@@ -84,8 +84,8 @@ describe('CredentialService', () => {
       );
     });
 
-    test('should return SuperAuthError when provider sign up fails with SuperAuthError', async () => {
-      const signUpError = new SuperAuthError({
+    test('should return LucidAuthError when provider sign up fails with LucidAuthError', async () => {
+      const signUpError = new LucidAuthError({
         message: 'Account already exists.',
       });
 
@@ -97,7 +97,7 @@ describe('CredentialService', () => {
 
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {
@@ -137,13 +137,13 @@ describe('CredentialService', () => {
 
       expect(result.isOk()).toBe(true);
       const value = result._unsafeUnwrap();
-      expect(value.sessionData).toEqual({
+      expect(value.user).toEqual({
         id: 'user-123',
         email: 'test@example.com',
         name: 'Test User',
         role: 'user',
       });
-      expect(value.sessionData).not.toHaveProperty('hashedPassword');
+      expect(value.user).not.toHaveProperty('hashedPassword');
       expect(value.redirectTo).toBe('/');
     });
 
@@ -155,8 +155,8 @@ describe('CredentialService', () => {
       expect(mockProvider.signIn).toHaveBeenCalledWith(signInData);
     });
 
-    test('should return SuperAuthError when provider signIn fails', async () => {
-      const signInError = new SuperAuthError({
+    test('should return LucidAuthError when provider signIn fails', async () => {
+      const signInError = new LucidAuthError({
         message: 'Invalid credentials',
       });
 
@@ -168,7 +168,7 @@ describe('CredentialService', () => {
 
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {
@@ -228,11 +228,11 @@ describe('CredentialService', () => {
       );
     });
 
-    test('should return SuperAuthError when provider verifyEmail fails', async () => {
+    test('should return LucidAuthError when provider verifyEmail fails', async () => {
       const request = createMockRequest(
         'https://myapp.com/api/auth/verify-email?token=invalid',
       );
-      const verifyError = new SuperAuthError({
+      const verifyError = new LucidAuthError({
         message: 'Invalid token',
       });
 
@@ -244,7 +244,7 @@ describe('CredentialService', () => {
 
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {
@@ -304,8 +304,8 @@ describe('CredentialService', () => {
       );
     });
 
-    test('should return SuperAuthError when provider forgotPassword fails', async () => {
-      const forgotPasswordError = new SuperAuthError({
+    test('should return LucidAuthError when provider forgotPassword fails', async () => {
+      const forgotPasswordError = new LucidAuthError({
         message: 'Failed to send reset email',
       });
 
@@ -321,7 +321,7 @@ describe('CredentialService', () => {
       expect(result.isErr()).toBe(true);
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {
@@ -395,11 +395,11 @@ describe('CredentialService', () => {
       );
     });
 
-    test('should return SuperAuthError when token verification fails', async () => {
+    test('should return LucidAuthError when token verification fails', async () => {
       const request = createMockRequest(
         'https://myapp.com/api/auth/verify-password-reset-token?token=expired',
       );
-      const verifyError = new SuperAuthError({
+      const verifyError = new LucidAuthError({
         message: 'Token expired',
       });
 
@@ -415,7 +415,7 @@ describe('CredentialService', () => {
       expect(result.isErr()).toBe(true);
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {
@@ -484,8 +484,8 @@ describe('CredentialService', () => {
       );
     });
 
-    test('should return SuperAuthError when provider resetPassword fails', async () => {
-      const resetError = new SuperAuthError({
+    test('should return LucidAuthError when provider resetPassword fails', async () => {
+      const resetError = new LucidAuthError({
         message: 'Invalid reset password token.',
       });
 
@@ -502,7 +502,7 @@ describe('CredentialService', () => {
       expect(result.isErr()).toBe(true);
       const error = result._unsafeUnwrapErr();
 
-      expect(error).toBeInstanceOf(SuperAuthError);
+      expect(error).toBeInstanceOf(LucidAuthError);
     });
 
     test('should wrap unknown errors in UnknownError', async () => {

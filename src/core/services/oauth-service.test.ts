@@ -5,7 +5,7 @@ import type { AuthConfig } from '../../types';
 import type { SessionStorage } from '../session/types';
 import type { OAuthProvider } from '../../providers/types';
 import type { OAuthStatePayload, OAuthStateJWE } from '../oauth/types';
-import { SuperAuthError, UnknownError } from '../errors';
+import { LucidAuthError, UnknownError } from '../errors';
 import {
   GenerateStateError,
   GenerateCodeChallengeError,
@@ -16,6 +16,7 @@ import {
   DecryptOAuthStateJweError,
   EncryptOAuthStatePayloadError,
 } from '../oauth/errors';
+import type { User } from '../session/types';
 
 // ============================================
 // MOCK DEPENDENCIES
@@ -229,7 +230,7 @@ describe('OAuthService', () => {
     });
 
     test('should return error when provider getAuthorizationUrl fails', async () => {
-      const authUrlError = new SuperAuthError({
+      const authUrlError = new LucidAuthError({
         message: 'Failed to create URL',
       });
       setupSuccessfulPKCE();
@@ -269,7 +270,7 @@ describe('OAuthService', () => {
       name: 'Test User',
       sub: '12345',
     };
-    const mockSessionData = {
+    const mockUser: User = {
       id: 'user-1',
       email: 'test@example.com',
     };
@@ -292,7 +293,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       const result = await oauthService.completeSignIn(
@@ -303,7 +304,7 @@ describe('OAuthService', () => {
 
       expect(result.isOk()).toBe(true);
       const value = result._unsafeUnwrap();
-      expect(value.sessionData).toEqual(mockSessionData);
+      expect(value.user).toEqual(mockUser);
       expect(value.redirectTo).toBe(mockOAuthStatePayload.redirectTo);
     });
 
@@ -326,7 +327,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       const result = await oauthService.completeSignIn(
@@ -354,7 +355,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       await oauthService.completeSignIn(request, undefined, mockProvider);
@@ -377,7 +378,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       await oauthService.completeSignIn(request, undefined, mockProvider);
@@ -403,7 +404,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       await oauthService.completeSignIn(request, undefined, mockProvider);
@@ -430,7 +431,7 @@ describe('OAuthService', () => {
         okAsync(mockUserClaims),
       );
       vi.mocked(mockProvider.onAuthenticated).mockReturnValue(
-        okAsync(mockSessionData),
+        okAsync(mockUser),
       );
 
       await oauthService.completeSignIn(request, undefined, mockProvider);
@@ -461,7 +462,7 @@ describe('OAuthService', () => {
       const request = createMockRequest(
         'https://myapp.com/callback?code=test&state=test',
       );
-      const storageError = new SuperAuthError({ message: 'Storage error' });
+      const storageError = new LucidAuthError({ message: 'Storage error' });
 
       vi.mocked(mockStorage.getSession).mockReturnValue(errAsync(storageError));
 
@@ -500,7 +501,7 @@ describe('OAuthService', () => {
       const request = createMockRequest(
         'https://myapp.com/callback?code=test&state=test',
       );
-      const completeSigninError = new SuperAuthError({
+      const completeSigninError = new LucidAuthError({
         message: 'OAuth failed',
       });
 
@@ -528,7 +529,7 @@ describe('OAuthService', () => {
       const request = createMockRequest(
         'https://myapp.com/callback?code=test&state=test',
       );
-      const authError = new SuperAuthError({ message: 'Auth callback failed' });
+      const authError = new LucidAuthError({ message: 'Auth callback failed' });
 
       vi.mocked(mockStorage.getSession).mockReturnValue(
         okAsync(mockOAuthStateJWE),

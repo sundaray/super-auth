@@ -1,21 +1,20 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { encryptUserSessionPayload } from './';
 import { decryptUserSessionJWE } from './';
-import type { UserSession } from './';
+import type { UserSessionPayload, UserSessionJWE } from './';
 
 describe('decryptUserSession', () => {
   const validSecret = Buffer.from('this-is-a-32-byte-secret-key-!!!').toString(
     'base64',
   );
 
-  const mockUserSession: UserSession = {
+  const mockPayload: UserSessionPayload = {
     user: {
       id: 'user-123',
       email: 'test@example.com',
       name: 'Test User',
     },
     provider: 'google',
-    expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
   };
 
   // Helper to create a valid JWE for testing decryption
@@ -24,7 +23,7 @@ describe('decryptUserSession', () => {
     age = 3600,
   ) => {
     const result = await encryptUserSessionPayload({
-      userSessionPayload: payload,
+      payload: payload,
       secret: validSecret,
       maxAge: age,
     });
@@ -42,19 +41,19 @@ describe('decryptUserSession', () => {
       });
 
       expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toEqual(
-        expect.objectContaining({
-          email: 'test@example.com',
-          provider: 'google',
-          name: 'Test User',
-          maxAge: 3600,
-        }),
-      );
+
+      const session = result._unsafeUnwrap();
+
+      expect(session.user.id).toBe('user-123');
+      expect(session.user.email).toBe('test@example.com');
+      expect(session.user.name).toBe('Test User');
+      expect(session.provider).toBe('google');
+      expect(session.expiresAt).toBeDefined();
     });
 
     test('should return error for malformed string', async () => {
       const result = await decryptUserSessionJWE({
-        JWE: 'not.a.real.jwe',
+        JWE: 'not.a.real.jwe' as UserSessionJWE,
         secret: validSecret,
       });
 

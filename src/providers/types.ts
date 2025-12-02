@@ -1,7 +1,7 @@
 import type { LucidAuthError } from '../core/errors';
 import { Result, ResultAsync } from 'neverthrow';
 import type { OAuthStatePayload } from '../core/oauth/types';
-import type { UserSession } from '../core/session/types';
+import type { User } from '../core/session/types';
 import type { CredentialProviderConfig } from './credential/types';
 
 export type AuthProviderId = 'google' | 'credential';
@@ -23,7 +23,7 @@ export interface OAuthProvider {
 
   onAuthenticated(
     userClaims: Record<string, any>,
-  ): ResultAsync<Record<string, unknown>, LucidAuthError>;
+  ): ResultAsync<User, LucidAuthError>;
 }
 
 export interface CredentialProvider {
@@ -42,7 +42,7 @@ export interface CredentialProvider {
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<UserSession, LucidAuthError>;
+  }): ResultAsync<User & { hashedPassword: string }, LucidAuthError>;
   verifyEmail(
     request: Request,
     secret: string,

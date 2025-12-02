@@ -9,14 +9,17 @@ describe('encryptUserSessionPayload', () => {
   );
 
   const mockPayload: UserSessionPayload = {
-    email: 'test@example.com',
-    maxAge: 3600,
+    user: {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+    },
     provider: 'google',
   };
 
   test('should generate a valid JWE string', async () => {
     const result = await encryptUserSessionPayload({
-      userSessionPayload: mockPayload,
+      payload: mockPayload,
       secret: validSecret,
       maxAge: 3600,
     });
@@ -35,7 +38,7 @@ describe('encryptUserSessionPayload', () => {
     const shortSecret = Buffer.from('short').toString('base64');
 
     const result = await encryptUserSessionPayload({
-      userSessionPayload: mockPayload,
+      payload: mockPayload,
       secret: shortSecret,
       maxAge: 3600,
     });

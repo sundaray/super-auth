@@ -16,7 +16,7 @@ import {
 
 import { LucidAuthError, UnknownError, CallbackError } from '../../core/errors';
 
-import type { UserSession } from '../../core/session/types';
+import type { User } from '../../core/session/types';
 import type { CredentialProviderConfig } from './types';
 import {
   generatePasswordResetToken,
@@ -117,7 +117,7 @@ export class CredentialProvider implements CredentialProviderType {
   signIn(data: {
     email: string;
     password: string;
-  }): ResultAsync<UserSession, LucidAuthError> {
+  }): ResultAsync<User & { hashedPassword: string }, LucidAuthError> {
     const config = this.config;
     return safeTry(async function* () {
       const { email, password } = data;
@@ -241,7 +241,7 @@ export class CredentialProvider implements CredentialProviderType {
           new CallbackError({ callback: 'checkUserExists', cause: error }),
       );
 
-      // If user does not exist or no credential account, silently succeed
+      // If user with a credential account doesn't exist, silently succeed
       if (!result.exists) {
         return ok({ redirectTo: config.onPasswordReset.redirects.checkEmail });
       }
@@ -402,7 +402,7 @@ export class CredentialProvider implements CredentialProviderType {
       const { passwordHash: currentPasswordHash } = result;
 
       // Compare token's passwordHash with current passwordHash
-      // If they don't match, password was already changed → token invalid
+      // If they don't match, password was already changed → token already used
       if (tokenPasswordHash !== currentPasswordHash) {
         return err(new PasswordResetTokenAlreadyUsedError());
       }
@@ -422,7 +422,7 @@ export class CredentialProvider implements CredentialProviderType {
           }),
       );
 
-      // Call user's sendPasswordChangeEmail callback
+      // Call user's sendPasswordUpdateEmail callback
       yield* ResultAsync.fromPromise(
         config.onPasswordReset.sendPasswordUpdateEmail({ email }),
         (error) =>

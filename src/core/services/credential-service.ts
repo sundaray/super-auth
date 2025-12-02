@@ -46,7 +46,7 @@ export class CredentialService {
           redirectTo: '/' as const,
         };
       })
-      .mapErr((error) => {
+      .mapErr((error: LucidAuthError) => {
         if (error instanceof LucidAuthError) {
           return error;
         }

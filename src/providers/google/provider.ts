@@ -13,13 +13,14 @@ import {
 } from '../../core/oauth/errors.js';
 
 import {
-  SuperAuthError,
+  LucidAuthError,
   UnknownError,
   CallbackError,
 } from '../../core/errors.js';
 import { CreateAuthorizationUrlError } from '../../core/oauth/errors.js';
 
 import { AUTH_ROUTES } from '../../core/constants';
+import type { User } from '../../core/session/types.js';
 
 // --------------------------------------------
 //
@@ -43,7 +44,7 @@ export class GoogleProvider implements OAuthProvider {
     codeChallenge: string;
     prompt?: string;
     baseUrl: string;
-  }): Result<string, SuperAuthError> {
+  }): Result<string, LucidAuthError> {
     const { state, codeChallenge, prompt, baseUrl } = params;
     return Result.fromThrowable(
       () => {
@@ -74,7 +75,7 @@ export class GoogleProvider implements OAuthProvider {
     request: Request,
     oauthStatePayload: OAuthStatePayload,
     baseUrl: string,
-  ): ResultAsync<GoogleUserClaims, SuperAuthError> {
+  ): ResultAsync<GoogleUserClaims, LucidAuthError> {
     const config = this.config;
 
     return safeTry(async function* () {
@@ -109,7 +110,7 @@ export class GoogleProvider implements OAuthProvider {
 
       return ok(userClaims);
     }).mapErr((error) => {
-      if (error instanceof SuperAuthError) {
+      if (error instanceof LucidAuthError) {
         return error;
       }
       return new UnknownError({
@@ -124,7 +125,7 @@ export class GoogleProvider implements OAuthProvider {
   // --------------------------------------------
   onAuthenticated(
     userClaims: GoogleUserClaims,
-  ): ResultAsync<Record<string, unknown>, SuperAuthError> {
+  ): ResultAsync<User, LucidAuthError> {
     return ResultAsync.fromPromise(
       this.config.onAuthenticated(userClaims),
       (error) =>

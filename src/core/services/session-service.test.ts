@@ -5,26 +5,23 @@ import type { AuthConfig } from '../../types';
 import type {
   SessionStorage,
   UserSessionPayload,
+  UserSession,
   UserSessionJWE,
 } from '../session/types';
-import { SuperAuthError, UnknownError } from '../errors';
-import {
-  EncryptUserSessionPayloadError,
-  DecryptUserSessionError,
-} from '../session/errors';
+import type { User } from '../session';
 
 // ============================================
 // MOCK DEPENDENCIES
 // ============================================
 vi.mock('../session', () => ({
   encryptUserSessionPayload: vi.fn(),
-  decryptUserSession: vi.fn(),
+  decryptUserSessionJWE: vi.fn(), // Fixed: was decryptUserSession
   createUserSessionPayload: vi.fn(),
 }));
 
 import {
   createUserSessionPayload,
-  decryptUserSession,
+  decryptUserSessionJWE,
   encryptUserSessionPayload,
 } from '../session';
 
@@ -42,11 +39,21 @@ describe('SessionService', () => {
     providers: [],
   };
 
-  const mockUserSessionPayload: UserSessionPayload = {
+  const mockUser: User = {
+    id: 'user-123',
     email: 'test@example.com',
     name: 'Test User',
-    maxAge: 3600,
+  };
+
+  const mockUserSessionPayload: UserSessionPayload = {
+    user: mockUser,
     provider: 'google',
+  };
+
+  const mockUserSession: UserSession = {
+    user: mockUser,
+    provider: 'google',
+    expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
   };
 
   function createMockSessionStorage() {
@@ -69,12 +76,7 @@ describe('SessionService', () => {
   // ============================================
   // createSession()
   // ============================================
-  describe('createSession', async () => {
-    const mockUserSessionpayload = {
-      email: 'test@example.com',
-      name: 'Test User',
-    };
-
+  describe('createSession', () => {
     test('should create a user session JWE on success', async () => {
       const mockUserSessionJWE = 'user-session-jwe' as UserSessionJWE;
 
@@ -85,22 +87,18 @@ describe('SessionService', () => {
         okAsync(mockUserSessionJWE),
       );
 
-      const result = await sessionService.createSession(
-        mockUserSessionPayload,
-        'google',
-      );
+      const result = await sessionService.createSession(mockUser, 'google');
 
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap()).toBe(mockUserSessionJWE);
 
       expect(createUserSessionPayload).toHaveBeenCalledWith({
-        authConfig: mockConfig,
-        providerName: 'google',
-        userClaims: mockUserSessionPayload,
+        user: mockUser,
+        provider: 'google',
       });
 
       expect(encryptUserSessionPayload).toHaveBeenCalledWith({
-        userSessionPayload: mockUserSessionPayload,
+        payload: mockUserSessionPayload,
         secret: mockConfig.session.secret,
         maxAge: mockConfig.session.maxAge,
       });
@@ -110,25 +108,22 @@ describe('SessionService', () => {
   // ============================================
   // getSession()
   // ============================================
-  describe('getSession', async () => {
-    test('should return decrypted user session payload when when user session exists', async () => {
+  describe('getSession', () => {
+    test('should return decrypted user session when session exists', async () => {
       const mockSessionJWE = 'mock-session-jwe';
       vi.mocked(mockSessionStorage.getSession).mockReturnValue(
         okAsync(mockSessionJWE),
       );
-      vi.mocked(decryptUserSession).mockReturnValue(
-        okAsync(mockUserSessionPayload),
+      vi.mocked(decryptUserSessionJWE).mockReturnValue(
+        okAsync(mockUserSession),
       );
+
       const result = await sessionService.getSession(undefined);
 
-      if (result.isErr()) {
-        console.log('Get session error: ', result.error);
-      }
-
       expect(result.isOk()).toBe(true);
-      expect(result._unsafeUnwrap()).toEqual(mockUserSessionPayload);
-      expect(decryptUserSession).toHaveBeenCalledWith({
-        session: mockSessionJWE,
+      expect(result._unsafeUnwrap()).toEqual(mockUserSession);
+      expect(decryptUserSessionJWE).toHaveBeenCalledWith({
+        JWE: mockSessionJWE,
         secret: mockConfig.session.secret,
       });
     });
@@ -140,18 +135,19 @@ describe('SessionService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result._unsafeUnwrap()).toBeNull();
-      expect(decryptUserSession).not.toHaveBeenCalled();
+      expect(decryptUserSessionJWE).not.toHaveBeenCalled();
     });
   });
 
   // ============================================
   // deleteSession()
   // ============================================
-  describe('deleteSession', async () => {
+  describe('deleteSession', () => {
     test('should delete session successfully', async () => {
       vi.mocked(mockSessionStorage.deleteSession).mockReturnValue(
         okAsync(undefined),
       );
+
       const result = await sessionService.deleteSession(undefined);
 
       expect(result.isOk()).toBe(true);

@@ -22,15 +22,15 @@ export function decryptUserSessionJWE(
     (async () => {
       const { payload } = await jwtDecrypt(JWE, secretKey);
       const { exp, user, provider } = payload as {
-        exp?: number;
-        iat?: number;
+        exp: number;
+        iat: number;
         user: User;
         provider: AuthProviderId;
       };
       return {
         user,
         provider,
-        expiresAt: new Date(exp! * 1000).toISOString(),
+        expiresAt: new Date(exp * 1000).toISOString(),
       };
     })(),
     (error) => new DecryptUserSessionError({ cause: error }),

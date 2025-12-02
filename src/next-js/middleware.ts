@@ -25,7 +25,7 @@ export function createExtendUserSessionMiddleware(config: AuthConfig) {
 
     // Decrypt the session to check expiration
     const decryptResult = await decryptUserSessionJWE({
-      userSessionJWE: userSessionCookie.value,
+      JWE: userSessionCookie.value,
       secret: config.session.secret,
     });
 

@@ -31,7 +31,7 @@ export class SessionService<TContext> {
     })
       .andThen((userSessionPayload) =>
         encryptUserSessionPayload({
-          userSessionPayload,
+          payload: userSessionPayload,
           secret: this.config.session.secret,
           maxAge: this.config.session.maxAge,
         }),
@@ -61,7 +61,7 @@ export class SessionService<TContext> {
         }
 
         return decryptUserSessionJWE({
-          userSessionJWE,
+          JWE: userSessionJWE as UserSessionJWE,
           secret: this.config.session.secret,
         });
       })
