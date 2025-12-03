@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { ok, err, okAsync, errAsync } from 'neverthrow';
 import { GoogleProvider } from './provider';
 import type { GoogleProviderConfig, GoogleUserClaims } from './types';
-import type { OAuthStatePayload } from '../../core/oauth';
+import type { OAuthState } from '../../core/oauth/types';
 import { DecodeGoogleIdTokenError } from './errors';
 
 // These are the functions we will mock
@@ -21,16 +21,26 @@ vi.mock('./decode-google-id-token', () => ({
 }));
 
 describe('GoogleProvider', () => {
-  const mockConfig: GoogleProviderConfig = {
+  const createMockConfig = (
+    overrides?: Partial<GoogleProviderConfig>,
+  ): GoogleProviderConfig => ({
     clientId: 'test-client-id',
     clientSecret: 'test-client-secret',
-    onAuthenticated: vi.fn(),
-  };
+    onAuthentication: {
+      createGoogleUser: vi.fn(),
+      redirects: {
+        error: '/auth/error',
+      },
+    },
+    ...overrides,
+  });
 
+  let mockConfig: GoogleProviderConfig;
   let provider: GoogleProvider;
 
   beforeEach(() => {
     vi.resetAllMocks();
+    mockConfig = createMockConfig();
     provider = new GoogleProvider(mockConfig);
   });
 
@@ -72,11 +82,14 @@ describe('GoogleProvider', () => {
     });
 
     test('should use custom prompt when provided', () => {
-      const result = provider.getAuthorizationUrl({
+      // Create a provider with custom prompt in config
+      const configWithPrompt = createMockConfig({ prompt: 'consent' });
+      const providerWithPrompt = new GoogleProvider(configWithPrompt);
+
+      const result = providerWithPrompt.getAuthorizationUrl({
         state: 'test-state',
         codeChallenge: 'test-challenge',
         baseUrl: 'https://myapp.com',
-        prompt: 'consent',
       });
 
       expect(result.isOk()).toBe(true);
@@ -89,7 +102,7 @@ describe('GoogleProvider', () => {
     // Complete sign-in
     // --------------------------------------------
     describe('completeSignIn', () => {
-      const mockOAuthState: OAuthStatePayload = {
+      const mockOAuthState: OAuthState = {
         state: 'test-state',
         codeVerifier: 'test-code-verifier',
         redirectTo: '/dashboard',
@@ -235,20 +248,23 @@ describe('GoogleProvider', () => {
       test('should call the user callback with user claims', async () => {
         const mockSessionData = { id: 'user-1', email: 'test@example.com' };
 
-        vi.mocked(mockConfig.onAuthenticated).mockResolvedValue(
-          mockSessionData,
-        );
+        vi.mocked(
+          mockConfig.onAuthentication.createGoogleUser,
+        ).mockResolvedValue(mockSessionData);
 
         const result = await provider.onAuthenticated(mockUserClaims);
 
         expect(result.isOk()).toBe(true);
-        expect(mockConfig.onAuthenticated).toHaveBeenCalledWith(mockUserClaims);
+        expect(
+          mockConfig.onAuthentication.createGoogleUser,
+        ).toHaveBeenCalledWith(mockUserClaims);
         expect(result._unsafeUnwrap()).toEqual(mockSessionData);
       });
+
       test('should wrap erros when user callback throws', async () => {
-        vi.mocked(mockConfig.onAuthenticated).mockRejectedValue(
-          new Error('Database Error'),
-        );
+        vi.mocked(
+          mockConfig.onAuthentication.createGoogleUser,
+        ).mockRejectedValue(new Error('Database Error'));
 
         const result = await provider.onAuthenticated(mockUserClaims);
 

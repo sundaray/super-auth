@@ -48,7 +48,7 @@ describe('CredentialProvider.verifyEmail', () => {
     vi.mocked(verifyEmailVerificationToken).mockReturnValue(
       okAsync(mockTokenPayload),
     );
-    mockConfig.onSignUp.createUser.mockResolvedValue(undefined);
+    mockConfig.onSignUp.createCredentialUser.mockResolvedValue(undefined);
 
     const result = await provider.verifyEmail(request, testSecret);
 
@@ -118,7 +118,7 @@ describe('CredentialProvider.verifyEmail', () => {
     );
 
     const callbackError = new Error('Database connection failed');
-    mockConfig.onSignUp.createUser.mockRejectedValue(callbackError);
+    mockConfig.onSignUp.createCredentialUser.mockRejectedValue(callbackError);
 
     const result = await provider.verifyEmail(request, testSecret);
 
@@ -126,7 +126,7 @@ describe('CredentialProvider.verifyEmail', () => {
 
     const value = result._unsafeUnwrap();
     expect(value.redirectTo).toBe(
-      `${mockConfig.onSignUp.redirects.emailVerificationError}?error=on_sign_up_create_user_callback_error`,
+      `${mockConfig.onSignUp.redirects.emailVerificationError}?error=on_sign_up_create_credential_user_callback_error`,
     );
   });
 

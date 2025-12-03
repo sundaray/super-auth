@@ -26,8 +26,6 @@ vi.mock('../../../core/password/verify', async (importOriginal) => {
 
 import { verifyPassword } from '../../../core/password/verify';
 
-const MockCredentialProviderConfig = createMockCredentialProviderConfig();
-
 describe('CredentialProvider.signUp', () => {
   let provider: CredentialProvider;
   let mockConfig: MockCredentialProviderConfig;
@@ -39,7 +37,7 @@ describe('CredentialProvider.signUp', () => {
   });
 
   test('should return user session on successful sign in', async () => {
-    mockConfig.onSignIn.mockResolvedValue(mockUserSession);
+    mockConfig.onSignIn.getCredentialUser.mockResolvedValue(mockUserSession);
     vi.mocked(verifyPassword).mockReturnValue(okAsync(true));
 
     const result = await provider.signIn(testUserData);
@@ -49,7 +47,7 @@ describe('CredentialProvider.signUp', () => {
   });
 
   test('should return AccountNotFoundError when user does not exist', async () => {
-    mockConfig.onSignIn.mockResolvedValue(null);
+    mockConfig.onSignIn.getCredentialUser.mockResolvedValue(null);
 
     const result = await provider.signIn(testUserData);
 
@@ -60,7 +58,7 @@ describe('CredentialProvider.signUp', () => {
   });
 
   test('should return InvalidCredentialsError when password is invalid', async () => {
-    mockConfig.onSignIn.mockResolvedValue(mockUserSession);
+    mockConfig.onSignIn.getCredentialUser.mockResolvedValue(mockUserSession);
     vi.mocked(verifyPassword).mockReturnValue(okAsync(false));
 
     const result = await provider.signIn(testUserData);
@@ -73,7 +71,7 @@ describe('CredentialProvider.signUp', () => {
 
   test('should return CallbackError when onSignIn throws', async () => {
     const callbackError = new Error('Database connection failed');
-    mockConfig.onSignIn.mockRejectedValue(callbackError);
+    mockConfig.onSignIn.getCredentialUser.mockRejectedValue(callbackError);
 
     const result = await provider.signIn(testUserData);
 

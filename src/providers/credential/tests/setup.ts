@@ -7,18 +7,20 @@ import type { CredentialProviderConfig } from '../types';
 
 export interface MockCredentialProviderConfig extends CredentialProviderConfig {
   onSignUp: {
-    checkUserExists: Mock;
+    checkCredentialUserExists: Mock;
     sendVerificationEmail: Mock;
-    createUser: Mock;
+    createCredentialUser: Mock;
     redirects: {
       signUpSuccess: `/${string}`;
       emailVerificationSuccess: `/${string}`;
       emailVerificationError: `/${string}`;
     };
   };
-  onSignIn: Mock;
+  onSignIn: {
+    getCredentialUser: Mock;
+  };
   onPasswordReset: {
-    checkUserExists: Mock;
+    checkCredentialUserExists: Mock;
     sendPasswordResetEmail: Mock;
     updatePassword: Mock;
     sendPasswordUpdateEmail: Mock;
@@ -34,18 +36,20 @@ export interface MockCredentialProviderConfig extends CredentialProviderConfig {
 export function createMockCredentialProviderConfig(): MockCredentialProviderConfig {
   return {
     onSignUp: {
-      checkUserExists: vi.fn(),
+      checkCredentialUserExists: vi.fn(),
       sendVerificationEmail: vi.fn(),
-      createUser: vi.fn(),
+      createCredentialUser: vi.fn(),
       redirects: {
         signUpSuccess: '/check-email',
         emailVerificationSuccess: '/sign-in',
         emailVerificationError: '/sign-up/error',
       },
     },
-    onSignIn: vi.fn(),
+    onSignIn: {
+      getCredentialUser: vi.fn(),
+    },
     onPasswordReset: {
-      checkUserExists: vi.fn(),
+      checkCredentialUserExists: vi.fn(),
       sendPasswordResetEmail: vi.fn(),
       updatePassword: vi.fn(),
       sendPasswordUpdateEmail: vi.fn(),

@@ -28,6 +28,7 @@ export function createMockOAuthProvider(): OAuthProvider {
     getAuthorizationUrl: vi.fn(),
     completeSignin: vi.fn(),
     onAuthenticated: vi.fn(),
+    getErrorRedirectPath: vi.fn().mockReturnValue('/auth/error'),
   };
 }
 export function createMockCredentialProvider(): CredentialProvider {

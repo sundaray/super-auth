@@ -52,8 +52,6 @@ import {
   buildEmailVerificationUrl,
 } from '../../../core/verification';
 
-const MockCredentialProviderConfig = createMockCredentialProviderConfig();
-
 describe('CredentialProvider.signUp', () => {
   let provider: CredentialProvider;
   let mockConfig: MockCredentialProviderConfig;
@@ -65,7 +63,9 @@ describe('CredentialProvider.signUp', () => {
   });
 
   test('should return email and redirectTo on successful signUp', async () => {
-    mockConfig.onSignUp.checkUserExists.mockResolvedValue({ exists: false });
+    mockConfig.onSignUp.checkCredentialUserExists.mockResolvedValue({
+      exists: false,
+    });
     vi.mocked(hashPassword).mockReturnValue(
       okAsync(mockHashedPassword as PasswordHash),
     );
@@ -88,7 +88,9 @@ describe('CredentialProvider.signUp', () => {
   });
 
   test('should return AccountAlreadyExistsError when user exists', async () => {
-    mockConfig.onSignUp.checkUserExists.mockResolvedValue({ exists: true });
+    mockConfig.onSignUp.checkCredentialUserExists.mockResolvedValue({
+      exists: true,
+    });
 
     const result = await provider.signUp(testUserData, testSecret, testBaseUrl);
 
@@ -100,7 +102,9 @@ describe('CredentialProvider.signUp', () => {
 
   test('should return CallbackError when checkUserExists throws', async () => {
     const callbackError = new Error('Database connection failed');
-    mockConfig.onSignUp.checkUserExists.mockRejectedValue(callbackError);
+    mockConfig.onSignUp.checkCredentialUserExists.mockRejectedValue(
+      callbackError,
+    );
 
     const result = await provider.signUp(testUserData, testSecret, testBaseUrl);
 
@@ -113,7 +117,9 @@ describe('CredentialProvider.signUp', () => {
   test('should return CallbackError when sendVerificationEmail throws', async () => {
     const callbackError = new Error('Email service unavailable');
 
-    mockConfig.onSignUp.checkUserExists.mockResolvedValue({ exists: false });
+    mockConfig.onSignUp.checkCredentialUserExists.mockResolvedValue({
+      exists: false,
+    });
     vi.mocked(hashPassword).mockReturnValue(
       okAsync(mockHashedPassword as PasswordHash),
     );
