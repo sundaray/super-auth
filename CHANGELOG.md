@@ -1,5 +1,11 @@
 # lucidauth
 
+## 0.2.0
+
+### Minor Changes
+
+- e560ae6: Refined API
+
 ## 0.1.1
 
 ### Patch Changes

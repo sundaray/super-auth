@@ -1,5 +1,0 @@
----
-'lucidauth': minor
----
-
-Refined API
