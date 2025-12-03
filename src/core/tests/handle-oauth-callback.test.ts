@@ -39,7 +39,7 @@ vi.mock('../services', () => ({
   }),
 }));
 
-describe('handleResetPassword', () => {
+describe('handleOAuthCallback', () => {
   let authHelpers: ReturnType<typeof createAuthHelpers<TestContext>>;
 
   const mockRequest = new Request(
@@ -53,6 +53,12 @@ describe('handleResetPassword', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+
+    // Re-setup the default return value after resetAllMocks clears it
+    vi.mocked(mockOAuthProvider.getErrorRedirectPath).mockReturnValue(
+      '/auth/error',
+    );
+
     authHelpers = createAuthHelpers(
       mockConfig,
       mockUserSessionStorage,
@@ -149,7 +155,8 @@ describe('handleResetPassword', () => {
       sessionJWE,
     );
   });
-  test('should pass through LucidAuthError from oauthService.completeSignIn', async () => {
+
+  test('should redirect to error page when oauthService.completeSignIn fails with LucidAuthError', async () => {
     const oauthError = new LucidAuthError({
       message: 'Failed to complete OAuth',
     });
@@ -163,8 +170,10 @@ describe('handleResetPassword', () => {
       'google',
     );
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(oauthError);
+    expect(result.isOk()).toBe(true);
+    const value = result._unsafeUnwrap();
+    expect(value.redirectTo).toContain('/auth/error');
+    expect(value.redirectTo).toContain('error=');
   });
 
   test('should wrap unknown error from oauthService.completeSignIn in UnknownError', async () => {
@@ -180,13 +189,12 @@ describe('handleResetPassword', () => {
     );
 
     expect(result.isErr()).toBe(true);
-
     const error = result._unsafeUnwrapErr();
     expect(error).toBeInstanceOf(UnknownError);
     expect(error.cause).toBe(unknownError);
   });
 
-  test('should pass through LucidAuthError from sessionService.createSession', async () => {
+  test('should redirect to error page when sessionService.createSession fails with LucidAuthError', async () => {
     const sessionError = new LucidAuthError({
       message: 'Failed to create session',
     });
@@ -206,11 +214,13 @@ describe('handleResetPassword', () => {
       'google',
     );
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(sessionError);
+    expect(result.isOk()).toBe(true);
+    const value = result._unsafeUnwrap();
+    expect(value.redirectTo).toContain('/auth/error');
+    expect(value.redirectTo).toContain('error=');
   });
 
-  test('should pass through LucidAuthError from userSessionStorage.saveSession', async () => {
+  test('should redirect to error page when userSessionStorage.saveSession fails with LucidAuthError', async () => {
     const storageError = new LucidAuthError({
       message: 'Failed to save user session',
     });
@@ -231,11 +241,39 @@ describe('handleResetPassword', () => {
       'google',
     );
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(storageError);
+    expect(result.isOk()).toBe(true);
+    const value = result._unsafeUnwrap();
+    expect(value.redirectTo).toContain('/auth/error');
+    expect(value.redirectTo).toContain('error=');
   });
 
-  test('should pass through LucidAuthError from oauthSessionStorage.deleteSession', async () => {
+  test('should use the error redirect path from provider.getErrorRedirectPath()', async () => {
+    const customErrorPath = '/custom/error/page';
+    const oauthError = new LucidAuthError({
+      message: 'OAuth failed',
+    });
+
+    mockProviderRegistry.get.mockReturnValue(ok(mockOAuthProvider));
+    mockOAuthService.completeSignIn.mockReturnValue(errAsync(oauthError));
+    vi.mocked(mockOAuthProvider.getErrorRedirectPath).mockReturnValue(
+      customErrorPath as `/${string}`,
+    );
+
+    const result = await authHelpers.handleOAuthCallback(
+      mockRequest,
+      testContext,
+      'google',
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(mockOAuthProvider.getErrorRedirectPath).toHaveBeenCalled();
+
+    const value = result._unsafeUnwrap();
+    expect(value.redirectTo).toContain(customErrorPath);
+    expect(value.redirectTo).toContain('error=auth_error');
+  });
+
+  test('should redirect to error page when oauthSessionStorage.deleteSession fails with LucidAuthError', async () => {
     const deleteError = new LucidAuthError({
       message: 'Failed to delete OAuth state',
     });
@@ -257,7 +295,9 @@ describe('handleResetPassword', () => {
       'google',
     );
 
-    expect(result.isErr()).toBe(true);
-    expect(result._unsafeUnwrapErr()).toBe(deleteError);
+    expect(result.isOk()).toBe(true);
+    const value = result._unsafeUnwrap();
+    expect(value.redirectTo).toContain('/auth/error');
+    expect(value.redirectTo).toContain('error=');
   });
 });

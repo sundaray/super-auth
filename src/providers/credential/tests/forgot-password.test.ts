@@ -47,7 +47,7 @@ describe('CredentialProvider.forgotPassword', () => {
   });
 
   test('should return redirectTo on successful forgot password request', async () => {
-    mockConfig.onPasswordReset.checkUserExists.mockResolvedValue({
+    mockConfig.onPasswordReset.checkCredentialUserExists.mockResolvedValue({
       exists: true,
     });
     vi.mocked(generatePasswordResetToken).mockReturnValue(
@@ -73,7 +73,7 @@ describe('CredentialProvider.forgotPassword', () => {
   });
 
   test('should silently succeed when user does not exist', async () => {
-    mockConfig.onPasswordReset.checkUserExists.mockResolvedValue({
+    mockConfig.onPasswordReset.checkCredentialUserExists.mockResolvedValue({
       exists: false,
     });
 
@@ -90,7 +90,7 @@ describe('CredentialProvider.forgotPassword', () => {
   });
 
   test('should not generate token or send email when user does not exist', async () => {
-    mockConfig.onPasswordReset.checkUserExists.mockResolvedValue({
+    mockConfig.onPasswordReset.checkCredentialUserExists.mockResolvedValue({
       exists: false,
     });
 
@@ -107,9 +107,11 @@ describe('CredentialProvider.forgotPassword', () => {
     ).not.toHaveBeenCalled();
   });
 
-  test('should return CallbackError when checkUserExists throws', async () => {
+  test('should return CallbackError when checkCredentialUserExists throws', async () => {
     const callbackError = new Error('Database connection failed');
-    mockConfig.onPasswordReset.checkUserExists.mockRejectedValue(callbackError);
+    mockConfig.onPasswordReset.checkCredentialUserExists.mockRejectedValue(
+      callbackError,
+    );
 
     const result = await provider.forgotPassword(
       { email: testEmail },
@@ -126,7 +128,7 @@ describe('CredentialProvider.forgotPassword', () => {
   test('should return CallbackError when sendPasswordResetEmail throws', async () => {
     const callbackError = new Error('Email service unavailable');
 
-    mockConfig.onPasswordReset.checkUserExists.mockResolvedValue({
+    mockConfig.onPasswordReset.checkCredentialUserExists.mockResolvedValue({
       exists: true,
     });
     vi.mocked(generatePasswordResetToken).mockReturnValue(

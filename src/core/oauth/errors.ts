@@ -6,7 +6,7 @@ export class AuthorizationCodeNotFoundError extends LucidAuthError {
       message: options.message || 'Missing authorization code in URL.',
       cause: options.cause,
     });
-    this.name = 'MissingAuthorizationCodeError';
+    this.name = 'AuthorizationCodeNotFoundError';
   }
 }
 
@@ -16,7 +16,7 @@ export class StateNotFoundError extends LucidAuthError {
       message: options.message || 'Missing state in URL.',
       cause: options.cause,
     });
-    this.name = 'MissingStateError';
+    this.name = 'StateNotFoundError';
   }
 }
 
@@ -26,7 +26,7 @@ export class OAuthStateCookieNotFoundError extends LucidAuthError {
       message: options.message || 'OAuth state cookie not found',
       cause: options.cause,
     });
-    this.name = 'MissingOAuthStateCookieError';
+    this.name = 'OAuthStateCookieNotFoundError';
   }
 }
 

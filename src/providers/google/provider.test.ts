@@ -133,12 +133,12 @@ describe('GoogleProvider', () => {
         [
           'authorization code is missing',
           'https://myapp.com/api/auth/callback/google',
-          'MissingAuthorizationCodeError',
+          'AuthorizationCodeNotFoundError',
         ],
         [
           'state is missing',
           'https://myapp.com/api/auth/callback/google?code=auth-code',
-          'MissingStateError',
+          'StateNotFoundError',
         ],
         [
           'state does not match',
