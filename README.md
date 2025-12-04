@@ -508,7 +508,7 @@ The `extendUserSessionMiddleware` solves this by automatically refreshing the se
 
 The `matcher` configuration ensures the middleware runs on all routes except static assets and auth API routes (which handle their own session logic).
 
-### Protecting Routes in Proxy
+### Protecting Routes in Proxy (Middleware)
 
 You can extend the proxy to protect routes and control access based on authentication status:
 
@@ -565,7 +565,7 @@ For all other requests, the proxy calls `extendUserSessionMiddleware` to refresh
 
 ## Extending the User Type Using Module Augmentation
 
-In the `createGoogleUser` and `getCredentialUser` callbacks, the object you return becomes part of the user session. The object you return can contain the fields: `id`, `email`, `name`, `image`, and `role`. This is because LucidAuth defines the default `User` type as follows:
+In the `createGoogleUser` and `getCredentialUser` callbacks, the object you return becomes part of the user session. The object you return can contain the properties: `id`, `email`, `name`, `image`, and `role`. This is because LucidAuth defines the default `User` type as follows:
 
 ```ts
 export interface BaseUser {
@@ -581,15 +581,15 @@ export interface User extends BaseUser {}
 
 If you attempt to return any other property, you will get a TypeScript error saying that the property does not exist on the `User` type. However, in practice, you often need to make additional properties available in the user session. You can achieve this using **Module Augmentation**.
 
-Let's say you want to make a property named `subscriptionId` available on the `user` object inside the user session (`session.user.subscriptionId`). To do this, create a file named `lucidauth.d.ts` in your project root (or inside your `src` folder) and add the following code:
+Let's say you want to make a property named `subscriptionId` available on the `user` object inside the user session (`session.user.subscriptionId`). To do this, create a file named `lucidauth.d.ts` in your project root and add the following code:
 
 ```ts
 // lucidauth.d.ts
 
-import 'lucidauth/core/types';
+import { BaseUser } from 'lucidauth/core/types';
 
 declare module 'lucidauth/core/types' {
-  export interface BaseUser {
+  interface BaseUser {
     subscriptionId?: string;
     // Add any other custom fields here
   }
