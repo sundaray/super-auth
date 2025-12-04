@@ -4,9 +4,9 @@ LucidAuth is a **TypeScript-first, server-side authentication library**. Current
 
 ## Status
 
-> **⚠️ Active Development**
+> **🚀 v1 Beta**
 >
-> This library is in active development. While the core logic is stable, public APIs are subject to change before the v1.0 release.
+> The core APIs are stable and have been tested in production-like environments. Minor refinements may occur before the official v1.0 release, but no breaking changes to the main authentication flows are expected.
 
 ## Session Strategy
 
