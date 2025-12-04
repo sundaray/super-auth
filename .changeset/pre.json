@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "lucidauth": "0.2.0"
+  },
+  "changesets": [
+    "icy-rules-roll"
+  ]
+}
