@@ -4,5 +4,9 @@
   "initialVersions": {
     "lucidauth": "0.2.0"
   },
-  "changesets": ["icy-rules-roll", "lucky-spoons-ask"]
+  "changesets": [
+    "icy-rules-roll",
+    "lucky-spoons-ask",
+    "tough-glasses-divide"
+  ]
 }
