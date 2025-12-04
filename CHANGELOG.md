@@ -1,5 +1,11 @@
 # lucidauth
 
+## 1.0.0-beta.1
+
+### Patch Changes
+
+- 29806d1: Fix type imports
+
 ## 1.0.0-beta.0
 
 ### Major Changes
