@@ -1,5 +1,11 @@
 # lucidauth
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- e0a45f3: Fix cookie deletion in production for \_\_Host- prefixed cookies
+
 ## 1.0.0-beta.2
 
 ### Patch Changes
