@@ -1,4 +1,4 @@
-function isNextJsDynamicError(error: unknown): boolean {
+export function isNextJsDynamicError(error: unknown): boolean {
   return (
     typeof error === 'object' &&
     error !== null &&

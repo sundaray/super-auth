@@ -6,6 +6,7 @@ import {
   GetUserSessionError,
   SaveUserSessionError,
 } from '../core/session/errors';
+import { isNextJsDynamicError } from '../core/utils/nextjs-dynamic-error';
 
 export class NextJsSessionStorage implements SessionStorage<undefined> {
   private cookieName: string;
@@ -21,9 +22,16 @@ export class NextJsSessionStorage implements SessionStorage<undefined> {
   ): ResultAsync<string | null, GetUserSessionError> {
     return ResultAsync.fromPromise(
       (async () => {
-        const cookieStore = await cookies();
-        const cookie = cookieStore.get(this.cookieName);
-        return cookie?.value ?? null;
+        try {
+          const cookieStore = await cookies();
+          const cookie = cookieStore.get(this.cookieName);
+          return cookie?.value ?? null;
+        } catch (error) {
+          if (isNextJsDynamicError(error)) {
+            return null;
+          }
+          throw error;
+        }
       })(),
       (error) => new GetUserSessionError({ cause: error }),
     );
