@@ -49,7 +49,12 @@ export class NextJsSessionStorage implements SessionStorage<undefined> {
     return ResultAsync.fromPromise(
       (async () => {
         const cookieStore = await cookies();
-        cookieStore.delete(this.cookieName);
+        cookieStore.delete({
+          name: this.cookieName,
+          path: this.cookieOptions.path,
+          secure: this.cookieOptions.secure,
+          sameSite: this.cookieOptions.sameSite,
+        });
       })(),
       (error) => new DeleteUserSessionError({ cause: error }),
     );

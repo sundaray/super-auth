@@ -4,7 +4,7 @@
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const COOKIE_PREFIX = isProduction ? '__Host-super_auth' : 'super_auth';
+const COOKIE_PREFIX = isProduction ? '__Host-lucid_auth' : 'lucid_auth';
 
 export const COOKIE_NAMES = {
   USER_SESSION: `${COOKIE_PREFIX}.user_session`,
